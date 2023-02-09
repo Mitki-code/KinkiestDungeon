@@ -6,14 +6,13 @@ News and Updates
 新闻和更新
 Support @ Patreon
 资助@Patreon
-Thank you to the following awesome people for supporting me at <patreon.com/ada18980>:|Alexthymia (for CN translation!)|Song (bound enemy graphics!)|cyberjoel|Samantha Lear|Kara|The-Fisher-King|selly-grim|Dex♪|Churro|Gamefan|Shogo|X27|Blox|Slacker|Nikos S.|WATA|Flame|Alexis Octavia|Finn|Dmitri S.|Noxgarm|Siegfried K.|Hellgete
-感谢以下杰出的人在<patreon.com/ada18980>中支持我:|Alexthymia (for CN translation!)|Song (bound enemy graphics!)|cyberjoel|Samantha Lear|Kara|The-Fisher-King|selly-grim|Dex♪|Churro|Gamefan|Shogo|X27|Blox|Slacker|Nikos S.|WATA|Flame|Alexis Octavia|Finn|Dmitri S.|Noxgarm|Siegfried K.|Hellgete
+Thank you to the following awesome people for supporting me at patreon.com/ada18980|cyberjoel|Samantha Lear|Kara|The-Fisher-King|Laioken|Finn|selly-grim|Dex♪|Churro|Gamefan|Shogo|X27|Blox|Slacker|Nikos S.|Flame|Alexis Octavia|Dmitri S.|Noxgarm|Siegfried K.|Hellgete
+感谢以下杰出的人在<patreon.com/ada18980>中支持我|cyberjoel|Samantha Lear|Kara|The-Fisher-King|Laioken|Finn|selly-grim|Dex♪|Churro|Gamefan|Shogo|X27|Blox|Slacker|Nikos S.|Flame|Alexis Octavia|Dmitri S.|Noxgarm|Siegfried K.|Hellgete
+
 Back
 后退
 Next
 下一个
-Audio:|Potion drink - Jamius|Click - StrikeWhistler - Modified|StoneDoor_Close - AudioTorpedo - Modified|Footstep - Fission9 - Modified|FireSpell - Julien Matthey|LightSwing - qubodup|Heavy Swing - orangesheepdog|Miss - Brsjak - Modified|Clap - DWSD - Modified|'Door, Front, Closing, A.wav' by InspectorJ (www.jshaw.co.uk) of Freesound.org|'Door, Front, Opening, A.wav' by InspectorJ (www.jshaw.co.uk) of Freesound.org|Chest Open - spookymodem - Modified|Unlock - BeezleFM|Unbuckle - danhelbling|Scissors - qubodup|Rummage - adcbicycle|Fairy Dust - jacksonacademyashmore|Metal Smash - gristi|Door locked.wav - mitchanary - Modified|Coins.wav - Saviraz
-音频：|Potion drink - Jamius|Click - StrikeWhistler - Modified|StoneDoor_Close - AudioTorpedo - Modified|Footstep - Fission9 - Modified|FireSpell - Julien Matthey|LightSwing - qubodup|Heavy Swing - orangesheepdog|Miss - Brsjak - Modified|Clap - DWSD - Modified|'Door, Front, Closing, A.wav' by InspectorJ (www.jshaw.co.uk) of Freesound.org|'Door, Front, Opening, A.wav' by InspectorJ (www.jshaw.co.uk) of Freesound.org|Chest Open - spookymodem - Modified|Unlock - BeezleFM|Unbuckle - danhelbling|Scissors - qubodup|Rummage - adcbicycle|Fairy Dust - jacksonacademyashmore|Metal Smash - gristi|Door locked.wav - mitchanary - Modified|Coins.wav - Saviraz
 Language
 语言
 English
@@ -22,10 +21,11 @@ Chinese
 简体中文
 Korean
 韩语
-Mods Loaded.
-已加载 Mods
-Kinky Dungeon v3.91
-变态地牢 v3.91
+Mods Loaded
+Mods 已加载
+Mods
+Mods
+
 You are an adventurer descending into an ancient underground city of magic.
 你是一个冒险家，前往了一个古老的地下魔法城市。
 Beneath its depths lies the Mistress' Staff, an artifact of untold power.
@@ -36,32 +36,66 @@ Will you prevail against forces unknown, or succumb to its dark secrets?
 （本游戏不包含蜘蛛或任何食肉生物/植物）
 (Check out the latest standalone version at the deviantart link below!)
 （在下面的 deviantart 链接中查看最新的独立版本！）
+
 Enable Sounds
 启用声音
 Enable Drool/Tears
 启用流口水/眼泪
+Draw Armor
+绘制子弹
+Enable Music
+启用音乐
+Enable Toy SFX
+启用玩具音效
 Enable Fullscreen
 启用全屏
 High Quality Animations
 高品质动画
-Draw Armor
-绘制子弹
 Wait Quickly
 快速等待
+
 Helpless!
 无助！
 Evaded!
 闪避！
 Blocked!
 阻挡！
+Blocked restraint!
+阻挡束缚！
 You bump into a wall.
 你撞到了一堵墙。
+
 Toy Volume:
 玩具音量：
 Music Volume:
 音乐音量：
 Animation Speed:
 动画速度：
+
+Select a journey. This will determine the ordering of game areas.
+选择旅程。这将决定游戏区域的顺序。
+Standard: The intended experience
+标准：预期体验
+Random: A chaotic journey
+随机：混乱的旅程
+Harder: A more difficult journey
+更难：更困难的旅程
+
+Select perks to start with.
+选择初始技能
+Having 10+ spare points will trigger Hard Mode, granting unique loot.
+当可用积分大于10时将进入困难模式，在困难模式下可获得独特的战利品
+(HARD MODE ENABLED)
+(困难模式启用)
+Advanced start (choose perks)
+高级启动（选择额外选项）
+Confirm and start playing!
+确认并开始游戏！
+Point Cost: AMOUNT
+积分成本：AMOUNT
+Points Available: AMOUNT
+可用积分：AMOUNT
+
 Save my current progress.
 保存当前进度
 Give up & delete save
@@ -72,30 +106,6 @@ Yes,delete my save file!
 是的，删除我的存档文件！
 See Perks
 查看技能
-Select a journey. This will determine the ordering of game areas.
-选择旅程。这将决定游戏区域的顺序。
-Standard: The intended experience
-标准：预期体验
-Random: A chaotic journey
-随机：混乱的旅程
-Harder: A more difficult journey
-更难：更困难的旅程
-Select your character's background. You cannot change these in the future.
-选择角色的背景。您将来无法更改这些。
-Advanced start (choose perks)
-高级启动（选择额外选项）
-Confirm and start playing!
-确认并开始游戏！
-Select perks to start with.
-选择初始技能
-Having 10+ spare points will trigger Hard Mode, granting unique loot.
-可用积分大于10将进入困难模式，可获得独特的战利品
-(HARD MODE ENABLED)
-(困难模式启用)
-Point Cost: AMOUNT
-积分成本：AMOUNT
-Points Available: AMOUNT
-可用积分：AMOUNT
 Novice
 新手
 All spells above 1st level cost 2x as many spell points.
@@ -362,7 +372,7 @@ Save Keybindings
 保存键位
 Cancel Changes
 取消修改
-Change Keybindings
+Keybindings
 更改键位
 Load from code
 从代码加载
@@ -374,14 +384,16 @@ Clear Perks
 清除词条
 Config
 配置
+Game Options
+游戏选项
 Load Mod
 加载 Mod
 Delete Mod
 移除 Mod
 DANGER: Loading a mod will execute ARBITRARY CODE on your machine.
-【危险】：加载 Mod 将在你的计算机上肆意执行任意代码。
+【危险】Mod 可在你的计算机上肆意执行任意代码。
 Like connecting to a server, etc. Only load mods from a TRUSTED source.
-就如同连接到不可信的服务器一样。请仅仅只加载来源可信赖的 Mod 。
+就如同连接到不可信的服务器一样，请仅加载来源可信赖的 Mod 。
 Up
 向上
 Down
