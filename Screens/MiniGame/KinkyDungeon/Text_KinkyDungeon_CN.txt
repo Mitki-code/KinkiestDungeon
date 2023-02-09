@@ -100,9 +100,9 @@ Save my current progress.
 保存当前进度
 Give up & delete save
 放弃并删除存档
-Yes,jail me!
+Yes, jail me!
 是的，囚禁我
-Yes,delete my save file!
+Yes, delete my save file!
 是的，删除我的存档文件！
 See Perks
 查看技能
@@ -6654,20 +6654,20 @@ Allow Piercings
 允许穿孔
 Fighter
 战士
-Start with 200 willpower and 2 spell points, good for escaping and taking blows.
-从200点意志力和2点法术点开始，有利于逃跑和打击。
+Start with 200 willpower and Iron Will, good for attacking often and taking blows.
+初始拥有200点意志力和“钢铁意志”技能，适合逃跑和打击。
 Rogue
 流氓
-Start with 200 stamina and 2 spell points, good for sprinting around.
-从200点耐力和2点咒语开始，有利于短跑。
+Start with 200 stamina and Sneaky, good for stealth and slippery gameplay.
+初始拥有200点体力值和“影于暗处”技能，适合隐身。
 Mage
 法师
-Start with 200 mana and 3 spell points, good for casting spells.
-从200点法力和3点法术点开始，适合施法。
+Start with 200 mana and Magical Sight, good for casting spells.
+初始拥有200点魔力值和“影于暗处”技能，适合施法。
 Peasant
 普通人
 Start with nothing to your name. For those who want a challenge.
-从你的名字开始。对于那些想要挑战的人。
+以你的名字开始，适合那些想要挑战的人。
 Choose Spells
 选择法术
 Random Spells
@@ -6680,14 +6680,22 @@ Save Codes
 存档码
 Roguelike
 单人
-Grants you a save code every 5 floors you can write down elsewhere.
-每 5 个楼层授予您一个保存代码，您可以在其他地方写下。
-No save codes. You are in it to win it.
-没有保存代码。你参与其中是为了获胜。
+Grants a save code every floor you can write down. Autosaves only on floor start.
+在每一层都给予一个保存代码，在楼层开始时自动保存。
+No save codes, forced autosaves. You are in it to win it.
+没有保存代码，强制自动保存，你参与其中是为了获胜。
 Lock your settings in, nice and tight.
 锁定您的设置，又好又紧。
 Choose some perks to spice up your run.
 选择一些额外选项，为您的游玩增添趣味。
+Normal
+普通
+If you get captured, you're on your own.
+如果你被俘虏，你就只能靠自己了。
+Easy
+简单
+If you get captured, you will get rescued and pay a fee.
+如果你被俘虏，你将被救出，并需支付一笔费用。
 This game engages in safe and consensual analytics.
 该游戏涉及安全和自愿的数据分析。
 It sends data about spell choices, levels reached, etc, to help balance and improve the game.
