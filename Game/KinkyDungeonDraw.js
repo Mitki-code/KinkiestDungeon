@@ -798,7 +798,9 @@ function KinkyDungeonDrawGame() {
 								KinkyDungeonSpellValid = false;
 						}
 						if (KinkyDungeonTargetingSpell.selfTargetOnly && (KinkyDungeonPlayerEntity.x != KinkyDungeonTargetX || KinkyDungeonPlayerEntity.y != KinkyDungeonTargetY)) KinkyDungeonSpellValid = false;
-						if (KinkyDungeonTargetingSpell.noTargetDark && KinkyDungeonVisionGet(KinkyDungeonTargetX, KinkyDungeonTargetY) < 1) KinkyDungeonSpellValid = false;
+						if (KinkyDungeonTargetingSpell.requireLOS &&
+							!KinkyDungeonCheckPath(KinkyDungeonPlayerEntity.x, KinkyDungeonPlayerEntity.y, KinkyDungeonTargetX, KinkyDungeonTargetY,
+								true, true, 1, true)) KinkyDungeonSpellValid = false;
 						if (KinkyDungeonTargetingSpell.noTargetPlayer && KinkyDungeonPlayerEntity.x == KinkyDungeonTargetX && KinkyDungeonPlayerEntity.y == KinkyDungeonTargetY) KinkyDungeonSpellValid = false;
 						if (KinkyDungeonTargetingSpell.mustTarget && KinkyDungeonNoEnemy(KinkyDungeonTargetX, KinkyDungeonTargetY, true)) KinkyDungeonSpellValid = false;
 						if (KinkyDungeonTargetingSpell.minRange && KDistEuclidean(KinkyDungeonTargetX - KinkyDungeonPlayerEntity.x, KinkyDungeonTargetY - KinkyDungeonPlayerEntity.y) < KinkyDungeonTargetingSpell.minRange) KinkyDungeonSpellValid = false;
@@ -1306,11 +1308,11 @@ function KinkyDungeonDrawGame() {
 				Object.assign(KinkyDungeonKeybindingsTemp, KinkyDungeonKeybindings);
 			}
 			return true;
-		}, true, 975, 450, 250, 64, TextGet("GameConfigKeys"), "#ffffff", "");
+		}, true, 975, 450, 260, 64, TextGet("GameConfigKeys"), "#ffffff", "");
 		DrawButtonKDEx("GameToggles", () => {
 			KinkyDungeonState = "Toggles";
 			return true;
-		}, true, 1250, 450, 250, 64, TextGet("GameToggles"), "#ffffff", "");
+		}, true, 1265, 450, 260, 64, TextGet("GameToggles"), "#ffffff", "");
 
 	} else if (KinkyDungeonDrawState == "Perks2") {
 		KinkyDungeonDrawPerks(!KDDebugPerks);
@@ -1327,11 +1329,34 @@ function KinkyDungeonDrawGame() {
 		}, true, 1400, 930, 200, 54, TextGet("KinkyDungeonCopyPerks"), "#ffffff", "");
 	}
 
-	if (KinkyDungeonStatFreeze > 0) {
-		KDDrawArousalScreenFilter(0, 1000, 2000, 100, '190, 190, 255');
-	} else if (KinkyDungeonStatDistraction > 1.0) {
-		KDDrawArousalScreenFilter(0, 1000, 2000, KinkyDungeonStatDistraction * 100 / KinkyDungeonStatDistractionMax);
+	if (KinkyDungeonDrawState == "Game") {
+		if (KinkyDungeonFlags.get("PlayerOrgasmFilter")) {
+			FillRectKD(kdcanvas, kdpixisprites, "screenoverlayor", {
+				Left: 0,
+				Top: 0,
+				Width: 2000,
+				Height: 1000,
+				Color: "#ff5277",
+				LineWidth: 1,
+				zIndex: 1,
+				alpha: 0.2,
+			});
+		} else if (KinkyDungeonStatFreeze > 0) {
+			FillRectKD(kdcanvas, kdpixisprites, "screenoverlayfr", {
+				Left: 0,
+				Top: 0,
+				Width: 2000,
+				Height: 1000,
+				Color: "#92e8c0",
+				LineWidth: 1,
+				zIndex: 1,
+				alpha: 0.2,
+			});
+		} else if (KinkyDungeonStatDistraction > 1.0) {
+			KDDrawArousalScreenFilter(0, 1000, 2000, KinkyDungeonStatDistraction * 100 / KinkyDungeonStatDistractionMax);
+		}
 	}
+
 
 	if (ServerURL != "foobar")
 		DrawButtonVis(1885, 25, 90, 90, "", "#ffffff", KinkyDungeonRootDirectory + "UI/Exit.png");

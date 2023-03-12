@@ -82,6 +82,7 @@ let KDToggles = {
 	Sound: true,
 	Drool: true,
 	DrawArmor: true,
+	TurnCounter: true,
 };
 
 let KDDefaultKB = {
@@ -139,6 +140,8 @@ let KinkyDungeonInitTime = 0;
 
 let KinkyDungeonSleepTime = 0;
 let KinkyDungeonFreezeTime = 1000;
+let KinkyDungeonPlaySelfTime = 300;
+let KinkyDungeonOrgasmTime = 1000;
 let KinkyDungeonAutoWait = false;
 
 let KinkyDungeonConfigAppearance = false;
@@ -259,6 +262,7 @@ let KDOptOut = false;
 * MainPath: string,
 * ShortcutPath: string,
 * ItemID: number,
+* ShopkeeperFee: number,
 *}} KDGameDataBase
 */
 let KDGameDataBase = {
@@ -394,6 +398,7 @@ let KDGameDataBase = {
 	OfferCount: 0,
 
 	ItemID: 0,
+	ShopkeeperFee: 0,
 };
 /**
  * @type {KDGameDataBase}
@@ -602,7 +607,7 @@ function KinkyDungeonLoad() {
 				let parsed = parseInt(localStorage.getItem("KDAnimSpeed"));
 				if (parsed != undefined) {
 					KDAnimSpeedListIndex = parsed;
-					KDAnimSpeed = KDAnimSpeedList[KDAnimSpeedListIndex];
+					KDAnimSpeed = KDAnimSpeedList[KDAnimSpeedListIndex] || 0;
 				}
 			}
 
@@ -910,8 +915,19 @@ function KinkyDungeonRun() {
 		DrawButtonVis(590, 942, 150, 50, TextGet("KinkyDungeonDressPlayerImport"), "#ffffff", "");
 		DrawButtonVis(1870, 942, 110, 50, TextGet("KinkyDungeonCredits"), "#ffffff", "");
 		DrawButtonVis(1700, 942, 150, 50, TextGet("KinkyDungeonPatrons"), "#ffffff", "");
-		DrawButtonVis(850, 942, 375, 50, TextGet("KinkyDungeonDeviantart"), "#ffffff", "");
-		DrawButtonVis(1275, 942, 375, 50, TextGet("KinkyDungeonPatreon"), "#ffeecc", "");
+		DrawButtonKDEx("Deviantart", (bdata) => {
+			let url = 'https://www.deviantart.com/ada18980';
+			window.open(url, '_blank');
+			return true;
+		}, true, 1700, 694, 280, 50, TextGet("KinkyDungeonDeviantart"), "#ffffff", "");
+		DrawButtonKDEx("Patreon", (bdata) => {
+			let url = 'https://www.patreon.com/ada18980';
+			KDSendEvent('patreon');
+			window.open(url, '_blank');
+			return true;
+		}, true, 1700, 754, 280, 50, TextGet("KinkyDungeonPatreon"), "#ffeecc", "");
+
+
 
 		DrawButtonVis(1700, 874, 280, 50, TextGet(localStorage.getItem("BondageClubLanguage") || "EN"), "#ffffff", "");
 
@@ -1113,12 +1129,12 @@ function KinkyDungeonRun() {
 				KinkyDungeonSexyPlug = !KinkyDungeonSexyPlug;
 				localStorage.setItem("KinkyDungeonSexyPlug", KinkyDungeonSexyPlug ? "True" : "False");
 				return true;
-			}, true, 1500, 420, 64, 64, TextGet("KinkyDungeonSexyPlugs"), KinkyDungeonSexyPlug, false, "#ffffff");
+			}, true, 1500, 350, 64, 64, TextGet("KinkyDungeonSexyPlugs"), KinkyDungeonSexyPlug, false, "#ffffff");
 			DrawCheckboxKDEx("KinkyDungeonSexyPiercings", (bdata) => {
 				KinkyDungeonSexyPiercing = !KinkyDungeonSexyPiercing;
 				localStorage.setItem("KinkyDungeonSexyPiercing", KinkyDungeonSexyPiercing ? "True" : "False");
 				return true;
-			}, true, 1500, 500, 64, 64, TextGet("KinkyDungeonSexyPiercings"), KinkyDungeonSexyPiercing, false, "#ffffff");
+			}, true, 1500, 430, 64, 64, TextGet("KinkyDungeonSexyPiercings"), KinkyDungeonSexyPiercing, false, "#ffffff");
 			MainCanvas.textAlign = "center";
 		}
 
@@ -1269,7 +1285,7 @@ function KinkyDungeonRun() {
 				if (CommonTime() > KinkyDungeonSleepTime) {
 					KDSendInput("tick", {delta: 1}, false, true);
 					KDGameData.PlaySelfTurns -= 1;
-					KinkyDungeonSleepTime = CommonTime() + 230 * (0.5 + KDAnimSpeed * 0.5);
+					KinkyDungeonSleepTime = CommonTime() + (KinkyDungeonFlags.get("PlayerOrgasm") ? KinkyDungeonOrgasmTime : KinkyDungeonPlaySelfTime) * (0.5 + KDAnimSpeed * 0.5);
 				}
 				if (KDGameData.SleepTurns == 0) {
 					KinkyDungeonChangeStamina(0);
@@ -1478,20 +1494,26 @@ function KinkyDungeonRun() {
 			() => KDMusicVolumeList[(KDMusicVolumeListIndex + KDMusicVolumeList.length - 1) % KDMusicVolumeList.length] * 100 + "%",
 			() => KDMusicVolumeList[(KDMusicVolumeListIndex + 1) % KDMusicVolumeList.length] * 100 + "%");
 		YY += YYd;
+		DrawBackNextButtonVis(450, YY, 350, 64, TextGet("KDSfxVolume") + " " + (KDSfxVolume * 100 + "%"), "#ffffff", "",
+			() => KDSfxVolumeList[(KDSfxVolumeListIndex + KDSfxVolumeList.length - 1) % KDSfxVolumeList.length] * 100 + "%",
+			() => KDSfxVolumeList[(KDSfxVolumeListIndex + 1) % KDSfxVolumeList.length] * 100 + "%");
+		YY += YYd;
 		DrawBackNextButtonVis(450, YY, 350, 64, TextGet("KDAnimSpeed") + " " + (KDAnimSpeed * 100 + "%"), "#ffffff", "",
 			() => KDAnimSpeedList[(KDAnimSpeedListIndex + KDAnimSpeedList.length - 1) % KDAnimSpeedList.length] * 100 + "%",
 			() => KDAnimSpeedList[(KDAnimSpeedListIndex + 1) % KDAnimSpeedList.length] * 100 + "%");
 		YY += YYd;
 
-		// Draw temp start screen
-		DrawButtonKDEx("KBBack2", () => {
+
+
+
+		DrawButtonKDEx("KBBackOptions", () => {
 			KinkyDungeonKeybindingsTemp = Object.assign({}, KinkyDungeonKeybindingsTemp);
 			if (KinkyDungeonGameFlag) {
 				KinkyDungeonState = "Game";
 			} else KinkyDungeonState = "Menu";
 			//ServerAccountUpdate.QueueData({ KinkyDungeonKeybindings: KinkyDungeonKeybindings });
 			return true;
-		}, true, 975, 780, 550, 64, TextGet("GameReturnToMenu2"), "#ffffff", "");
+		}, true, 975, 780, 550, 64, TextGet("GameReturnToMenuFromOptions"), "#ffffff", "");
 
 	}
 
@@ -1852,6 +1874,7 @@ function KDInitializeJourney(Journey) {
 		newIndex.jng = 'tmp';
 		newIndex.cry = 'tmb';
 		newIndex.cat = 'grv';
+		newIndex.ore = 'ore';
 	} else if (KDGameData.Journey == "Test") {
 		newIndex.grv = 'ore';
 		newIndex.tmb = 'tmp';
@@ -1910,6 +1933,20 @@ function KDCommitKeybindings() {
 
 	KinkyDungeonGameKey.KEY_WAIT = (KinkyDungeonKeybindings.Wait);
 	KinkyDungeonGameKey.KEY_SKIP = (KinkyDungeonKeybindings.Skip);
+}
+
+let afterLoaded = false;
+
+/**
+ * Dummy function. You can modify this function as part of your mod like so:
+ * function _KDModsAfterLoad = KDModsAfterLoad;
+ * KDModsAfterLoad = () => {
+ * [Your stuff here]
+ * _KDModsAfterLoad();
+ * }
+ */
+function KDModsAfterLoad() {
+	// Meep
 }
 
 function KinkyDungeonStartNewGame(Load) {
@@ -2170,17 +2207,6 @@ function KinkyDungeonHandleClick() {
 			KinkyDungeonState = "Patrons";
 			return true;
 		}
-		if (MouseIn(850, 930, 375, 64)) {
-			let url = 'https://www.deviantart.com/ada18980';
-			window.open(url, '_blank');
-			return true;
-		}
-		if (MouseIn(1275, 930, 375, 64)) {
-			let url = 'https://www.patreon.com/ada18980';
-			KDSendEvent('patreon');
-			window.open(url, '_blank');
-			return true;
-		}
 	} else if (KinkyDungeonState == "Save") {
 		if (!KinkyDungeonIsPlayer()) KinkyDungeonState = "Game";
 		if (MouseIn(875, 750, 350, 64)) {
@@ -2196,6 +2222,42 @@ function KinkyDungeonHandleClick() {
 		if (KinkyDungeonIsPlayer()) KinkyDungeonClickGame();
 	} else if (KinkyDungeonState == "Keybindings") {
 		// Replaced by DrawButtonKDEx
+	} else if (KinkyDungeonState == "Toggles") {
+		let YYstart = 200;
+		let YY = YYstart;
+		let YYd = 70;
+
+		YY = YYstart;
+
+
+		if (MouseIn(450, YY, 350, 64)) {
+			if (MouseX <= 450 + 350/2) KDVibeVolumeListIndex = (KDVibeVolumeList.length + KDVibeVolumeListIndex - 1) % KDVibeVolumeList.length;
+			else KDVibeVolumeListIndex = (KDVibeVolumeListIndex + 1) % KDVibeVolumeList.length;
+			KDVibeVolume = KDVibeVolumeList[KDVibeVolumeListIndex];
+			localStorage.setItem("KDVibeVolume", "" + KDVibeVolumeListIndex);
+		}
+		YY += YYd;
+		if (MouseIn(450, YY, 350, 64)) {
+			if (MouseX <= 450 + 350/2) KDMusicVolumeListIndex = (KDMusicVolumeList.length + KDMusicVolumeListIndex - 1) % KDMusicVolumeList.length;
+			else KDMusicVolumeListIndex = (KDMusicVolumeListIndex + 1) % KDMusicVolumeList.length;
+			KDMusicVolume = KDMusicVolumeList[KDMusicVolumeListIndex];
+			localStorage.setItem("KDMusicVolume", "" + KDMusicVolumeListIndex);
+		}
+		YY += YYd;
+		if (MouseIn(450, YY, 350, 64)) {
+			if (MouseX <= 450 + 350/2) KDSfxVolumeListIndex = (KDSfxVolumeList.length + KDSfxVolumeListIndex - 1) % KDSfxVolumeList.length;
+			else KDSfxVolumeListIndex = (KDSfxVolumeListIndex + 1) % KDSfxVolumeList.length;
+			KDSfxVolume = KDSfxVolumeList[KDSfxVolumeListIndex];
+			localStorage.setItem("KDSfxVolume", "" + KDSfxVolumeListIndex);
+		}
+		YY += YYd;
+		if (MouseIn(450, YY, 350, 64)) {
+			if (MouseX <= 450 + 350/2) KDAnimSpeedListIndex = (KDAnimSpeedList.length + KDAnimSpeedListIndex - 1) % KDAnimSpeedList.length;
+			else KDAnimSpeedListIndex = (KDAnimSpeedListIndex + 1) % KDAnimSpeedList.length;
+			KDAnimSpeed = KDAnimSpeedList[KDAnimSpeedListIndex] || 0;
+			localStorage.setItem("KDAnimSpeed", "" + KDAnimSpeedListIndex);
+		}
+		YY += YYd;
 	} else if (KinkyDungeonState == "End") {
 		if (MouseIn(1075, 650, 350, 64)) {
 			KinkyDungeonState = "Game";
@@ -2540,6 +2602,12 @@ function KinkyDungeonLoadGame(String) {
 			&& saveData.costs != undefined
 			&& saveData.rep != undefined
 			&& saveData.dress != undefined) {
+
+			KDPathfindingCacheFails = 0;
+			KDPathfindingCacheHits = 0;
+			KDPathCache = new Map();
+			KDThoughtBubbles = new Map();
+
 			KinkyDungeonEntities = [];
 			KDUpdateEnemyCache = true;
 			if (saveData.flags && saveData.flags.length) KinkyDungeonFlags = new Map(saveData.flags);
@@ -2747,7 +2815,7 @@ let kdSoundCache = new Map();
  * @param {number} [volume]
  */
 function AudioPlayInstantSoundKD(Path, volume) {
-	const vol = volume != null ? volume : Player.AudioSettings.Volume;
+	const vol = KDSfxVolume * (volume != null ? volume : Player.AudioSettings.Volume);
 	if (vol > 0) {
 		let src = KDModFiles[Path] || Path;
 		let audio = kdSoundCache.has(src) ? kdSoundCache.get(src) : new Audio();

@@ -5,6 +5,11 @@ type Named = {
 /** Kinky Dungeon Typedefs*/
 interface item extends Named {
 	id: number,
+	/** Contains string data */
+	dataString?: Record<string, string>;
+	/** Contains numeric data */
+	dataNumber?: Record<string, number>;
+	/** Used in order to boost performance */
 	linkCache?: string[],
 	/** If the item has a different curse from the base curse */
 	curse?: string,
@@ -176,6 +181,8 @@ interface KDRestraintProps {
 	accessible?: boolean,
 	/** This item lets you CANT access linked items under it */
 	inaccessible?: boolean,
+	/** This item lets you ignore its inaccessibility for the sake of trussing up the player */
+	deepAccessible?: boolean,
 	/** This item can be rendered when linked */
 	renderWhenLinked?: string[];
 	// Player must have one of these PlayerTags to equip
@@ -516,6 +523,10 @@ interface overrideDisplayItem {
 interface KDLoadout {name: string, tags?: string[], singletag: string[], singletag2?: string[], forbidtags: string[], chance: number, items?: string[], restraintMult?: number, multiplier?: number};
 
 interface enemy extends KDHasTags {
+
+	/** This enemy will always kite the player even if player is harmless*/
+	alwaysKite?: boolean,
+
 	/** Restraint filters */
 	RestraintFilter?: {
 		/** This enemy can apply restraints without needing them in her pockets */
@@ -1486,8 +1497,8 @@ interface spell {
 	nonVolatile?: boolean;
 	/** Cancels automove when cast */
 	cancelAutoMove?: boolean;
-	/** noTargetDark */
-	noTargetDark?: boolean;
+	/** requireLOS */
+	requireLOS?: boolean;
 	/** selfTargetOnly */
 	selfTargetOnly?: boolean;
 	/** AI will only target creatures with this tag */

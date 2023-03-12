@@ -1,8 +1,10 @@
 "use strict";
 
 let KDDialogueParams = {
-	ShopkeeperFee: 1000,
-}
+	ShopkeeperFee: 900,
+	ShopkeeperFeePerLevel: 100,
+	ShopkeeperFeePunishThresh: 2500,
+};
 
 /**
  * Tags that are deleted on ng++
@@ -784,6 +786,7 @@ let KDDialogue = {
 			"Accept": {
 				playertext: "Default", response: "Default",
 				clickFunction: (gagged) => {
+					KDGameData.PrisonerState = "";
 					KinkyDungeonInterruptSleep();
 					let door = KDGetJailDoor(KinkyDungeonPlayerEntity.x, KinkyDungeonPlayerEntity.y);
 					if (door) {
@@ -833,6 +836,24 @@ let KDDialogue = {
 			return false;
 		},
 		options: {
+			"Treasure": {
+				playertext: "Default", response: "Default", gagDisabled: true,
+				options: {
+					"Leave": {
+						playertext: "Leave", response: "Default",
+						exitDialogue: true,
+					},
+				}
+			},
+			"Cost": {
+				playertext: "Default", response: "Default", gagDisabled: true,
+				options: {
+					"Leave": {
+						playertext: "Leave", response: "Default",
+						exitDialogue: true,
+					},
+				}
+			},
 			"Leave": {
 				playertext: "Leave", response: "Default",
 				exitDialogue: true,
@@ -842,16 +863,25 @@ let KDDialogue = {
 	"ShopkeeperTeleport": {
 		response: "Default",
 		clickFunction: (gagged) => {
+			if (!KDGameData.ShopkeeperFee) KDGameData.ShopkeeperFee = 0;
+			KDGameData.ShopkeeperFee += KDDialogueParams.ShopkeeperFee + Math.max(0, KDDialogueParams.ShopkeeperFeePerLevel * MiniGameKinkyDungeonLevel);
+			KDGameData.CurrentDialogMsgValue = {
+				"RESCUECOST": KDGameData.ShopkeeperFee,
+			};
+			KDGameData.CurrentDialogMsgData = {
+				"RESCUECOST": "" + KDGameData.ShopkeeperFee,
+			};
 			return false;
 		},
 		options: {
 			"Pay": {
 				playertext: "Default", response: "Default", gag: true,
 				prerequisiteFunction: (gagged) => {
-					return KinkyDungeonGold >= KDDialogueParams.ShopkeeperFee;
+					return KinkyDungeonGold >= KDGameData.ShopkeeperFee;
 				},
 				clickFunction: (gagged) => {
-					KinkyDungeonGold -= KDDialogueParams.ShopkeeperFee;
+					KinkyDungeonGold -= KDGameData.ShopkeeperFee;
+					KDGameData.ShopkeeperFee = 0;
 					KinkyDungeonRemoveRestraintsWithShrine("Rope", undefined, true, false, true);
 					KinkyDungeonRemoveRestraintsWithShrine("Leather", undefined, true, false, true);
 					KinkyDungeonRemoveRestraintsWithShrine("Metal", undefined, true, false, true);
@@ -866,14 +896,40 @@ let KDDialogue = {
 				}
 			},
 			"Tab": {
+				prerequisiteFunction: (gagged) => {
+					return !KDGameData.CurrentDialogMsgData.Please;
+				},
 				playertext: "Default", response: "Default", gag: true,
 				clickFunction: (gagged) => {
-					if (KinkyDungeonGold >= KDDialogueParams.ShopkeeperFee) {
+					if (KinkyDungeonGold >= KDDialogueParams.ShopkeeperFee + Math.max(0, KDDialogueParams.ShopkeeperFeePerLevel * MiniGameKinkyDungeonLevel)) {
 						KDGameData.CurrentDialogMsg = "ShopkeeperTeleportTabNo";
 						KDGameData.CurrentDialogStage = "";
-					} else if (KinkyDungeonPlayerTags.get("Metal") || KinkyDungeonPlayerTags.get("Leather") || KinkyDungeonPlayerTags.get("Rope") || KinkyDungeonPlayerTags.get("Latex")) {
-						KDGameData.CurrentDialogMsg = "ShopkeeperTeleportTabYesRestrained";
-					} else KDGameData.CurrentDialogMsg = "ShopkeeperTeleportTabYes";
+						KDGameData.CurrentDialogMsgData.Please = "true";
+						return false;
+					} else {
+						if (!KDGameData.CurrentDialogMsgData) KDGameData.CurrentDialogMsgData = {};
+						KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Armor = KinkyDungeonGetRestraint({tags: ['basicCurse', 'shopCurse']}, 10, 'grv', true, undefined, undefined, undefined, false)?.name;
+						KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Restraint = KDChooseRestraintFromListGroupPri(
+							KDGetRestraintsEligible({tags: ['trap', 'shopRestraint']}, 10, 'grv', true, undefined, undefined, undefined, false),
+							KDRestraintGroupProgressiveOrderFun)?.name;
+						KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Collar = KinkyDungeonGetRestraint({tags: ['shopCollar']}, 10, 'grv', true, undefined, undefined, undefined, false)?.name;
+						KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Catsuit = KinkyDungeonGetRestraint({tags: ['shopCatsuit']}, 10, 'grv', true, undefined, undefined, undefined, false)?.name;
+
+						if (KDGameData.ShopkeeperFee < KDDialogueParams.ShopkeeperFeePunishThresh || !(
+							KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Armor
+							|| KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Restraint
+							|| KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Collar
+							|| KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Catsuit
+							|| KinkyDungeonGold > KDGameData.ShopkeeperFee
+						)) {
+							if (KinkyDungeonPlayerTags.get("Metal") || KinkyDungeonPlayerTags.get("Leather") || KinkyDungeonPlayerTags.get("Rope") || KinkyDungeonPlayerTags.get("Latex")) {
+								KDGameData.CurrentDialogMsg = "ShopkeeperTeleportTabYesRestrained";
+							} else KDGameData.CurrentDialogMsg = "ShopkeeperTeleportTabYes";
+						} else {
+							KDGameData.CurrentDialogStage = "Debt";
+							KDGameData.CurrentDialogMsg = "ShopkeeperTeleportDebt";
+						}
+					}
 					return false;
 				},
 				options: {
@@ -883,11 +939,231 @@ let KDDialogue = {
 					},
 				}
 			},
+			"TabRetry": {
+				prerequisiteFunction: (gagged) => {
+					return KDGameData.CurrentDialogMsgData.Please != undefined;
+				},
+				playertext: "Default", response: "Default", gag: true,
+				clickFunction: (gagged) => {
+					if (!KDGameData.CurrentDialogMsgData) KDGameData.CurrentDialogMsgData = {};
+					KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Armor = KinkyDungeonGetRestraint({tags: ['basicCurse', 'shopCurse']}, 10, 'grv', true, undefined, undefined, undefined, false)?.name;
+					KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Restraint = KDChooseRestraintFromListGroupPri(
+						KDGetRestraintsEligible({tags: ['trap', 'shopRestraint']}, 10, 'grv', true, undefined, undefined, undefined, false),
+						KDRestraintGroupProgressiveOrderFun)?.name;
+					KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Collar = KinkyDungeonGetRestraint({tags: ['shopCollar']}, 10, 'grv', true, undefined, undefined, undefined, false)?.name;
+					KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Catsuit = KinkyDungeonGetRestraint({tags: ['shopCatsuit']}, 10, 'grv', true, undefined, undefined, undefined, false)?.name;
+
+					if (KDGameData.ShopkeeperFee < KDDialogueParams.ShopkeeperFeePunishThresh || !(
+						KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Armor
+						|| KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Restraint
+						|| KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Collar
+						|| KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Catsuit
+						|| KinkyDungeonGold > KDGameData.ShopkeeperFee
+					)) {
+						if (KinkyDungeonPlayerTags.get("Metal") || KinkyDungeonPlayerTags.get("Leather") || KinkyDungeonPlayerTags.get("Rope") || KinkyDungeonPlayerTags.get("Latex")) {
+							KDGameData.CurrentDialogMsg = "ShopkeeperTeleportTabRetryRestrained";
+						} else KDGameData.CurrentDialogMsg = "ShopkeeperTeleportTabRetry";
+					} else {
+						KDGameData.CurrentDialogStage = "Debt";
+						KDGameData.CurrentDialogMsg = "ShopkeeperTeleportDebt";
+					}
+					return false;
+				},
+				options: {
+					"Leave": {
+						playertext: "Leave", response: "Default",
+						exitDialogue: true,
+					},
+				}
+			},
+			"Debt": {
+				prerequisiteFunction: (gagged) => {
+					return false;
+				},
+				playertext: "Default", response: "Default", gag: true,
+				clickFunction: (gagged) => {
+					return false;
+				},
+				options: {
+					"Armor": {
+						playertext: "Default", response: "Default",
+						prerequisiteFunction: (gagged) => {
+							return KDGameData.CurrentDialogMsgData?.RESTRAINTNAME_Armor != undefined;
+						},
+						clickFunction: (gagged) => {
+							KDGameData.CurrentDialogMsgData.RESTRAINTNAME = TextGet("Restraint" + KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Armor);
+							return false;
+						},
+						options: {
+							"Yes": {
+								playertext: "ShopkeeperTeleportDebt_Yes", response: "Default", gag: true,
+								clickFunction: (gagged) => {
+									if (KDRandom() > (KDBasicArmorWeight_Cursed) / (KDBasicArmorWeight_Cursed + KDBasicArmorWeight)) {
+										KDGameData.CurrentDialogMsg = "ShopkeeperTeleportDebt_Armor_YesUncursed";
+
+									} else {
+										KinkyDungeonAddRestraint(KinkyDungeonGetRestraintByName(KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Armor), 0, true, "", true, false, false, undefined, "Shopkeeper", false, undefined,
+											CommonRandomItemFromList("", KDCurseUnlockList.Basic));
+										KDGameData.CurrentDialogMsg = "ShopkeeperTeleportDebt_Armor_YesCursed";
+
+									}
+
+									return false;
+								},
+								options: {
+									"Leave": {
+										playertext: "Leave", response: "Default",
+										exitDialogue: true,
+									},
+								}
+							},
+							"No": {
+								playertext: "ShopkeeperTeleportDebt_No", response: "Default", gag: true,
+								clickFunction: (gagged) => {
+									KDGameData.CurrentDialogStage = "Debt";
+									KDGameData.CurrentDialogMsg = "ShopkeeperTeleportDebt";
+									return true;
+								}
+							},
+						}
+					},
+					"Restraint": {
+						playertext: "Default", response: "Default",
+						prerequisiteFunction: (gagged) => {
+							return KDGameData.CurrentDialogMsgData?.RESTRAINTNAME_Restraint != undefined;
+						},
+						clickFunction: (gagged) => {
+							KDGameData.CurrentDialogMsgData.RESTRAINTNAME = TextGet("Restraint" + KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Restraint);
+							return false;
+						},
+						options: {
+							"Yes": {
+								playertext: "ShopkeeperTeleportDebt_Yes", response: "Default", gag: true,
+								clickFunction: (gagged) => {
+									KinkyDungeonAddRestraint(KinkyDungeonGetRestraintByName(KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Restraint), 0, true, "", true, false, false, undefined, "Shopkeeper", false, undefined,
+										CommonRandomItemFromList("", KDCurseUnlockList.Basic));
+									return false;
+								},
+								options: {
+									"Leave": {
+										playertext: "Leave", response: "Default",
+										exitDialogue: true,
+									},
+								}
+							},
+							"No": {
+								playertext: "ShopkeeperTeleportDebt_No", response: "Default", gag: true,
+								clickFunction: (gagged) => {
+									KDGameData.CurrentDialogStage = "Debt";
+									KDGameData.CurrentDialogMsg = "ShopkeeperTeleportDebt";
+									return true;
+								}
+							},
+						}
+					},
+					"Collar": {
+						playertext: "Default", response: "Default",
+						prerequisiteFunction: (gagged) => {
+							return KDGameData.CurrentDialogMsgData?.RESTRAINTNAME_Collar != undefined;
+						},
+						clickFunction: (gagged) => {
+							KDGameData.CurrentDialogMsgData.RESTRAINTNAME = TextGet("Restraint" + KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Collar);
+							return false;
+						},
+						options: {
+							"Yes": {
+								playertext: "ShopkeeperTeleportDebt_Yes", response: "Default", gag: true,
+								clickFunction: (gagged) => {
+									KinkyDungeonAddRestraint(KinkyDungeonGetRestraintByName(KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Collar), 0, true, "", true, false, false, undefined, "Shopkeeper", false, undefined,
+										CommonRandomItemFromList("", KDCurseUnlockList.Basic));
+									return false;
+								},
+								options: {
+									"Leave": {
+										playertext: "Leave", response: "Default",
+										exitDialogue: true,
+									},
+								}
+							},
+							"No": {
+								playertext: "ShopkeeperTeleportDebt_No", response: "Default", gag: true,
+								clickFunction: (gagged) => {
+									KDGameData.CurrentDialogStage = "Debt";
+									KDGameData.CurrentDialogMsg = "ShopkeeperTeleportDebt";
+									return true;
+								}
+							},
+						}
+					},
+					"Catsuit": {
+						playertext: "Default", response: "Default",
+						prerequisiteFunction: (gagged) => {
+							return KDGameData.CurrentDialogMsgData?.RESTRAINTNAME_Catsuit != undefined;
+						},
+						clickFunction: (gagged) => {
+							KDGameData.CurrentDialogMsgData.RESTRAINTNAME = TextGet("Restraint" + KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Catsuit);
+							return false;
+						},
+						options: {
+							"Yes": {
+								playertext: "ShopkeeperTeleportDebt_Yes", response: "Default", gag: true,
+								clickFunction: (gagged) => {
+									KinkyDungeonAddRestraint(KinkyDungeonGetRestraintByName(KDGameData.CurrentDialogMsgData.RESTRAINTNAME_Catsuit), 0, true, "", true, false, false, undefined, "Shopkeeper", false, undefined,
+										CommonRandomItemFromList("", KDCurseUnlockList.Basic));
+									return false;
+								},
+								options: {
+									"Leave": {
+										playertext: "Leave", response: "Default",
+										exitDialogue: true,
+									},
+								}
+							},
+							"No": {
+								playertext: "ShopkeeperTeleportDebt_No", response: "Default", gag: true,
+								clickFunction: (gagged) => {
+									KDGameData.CurrentDialogStage = "Debt";
+									KDGameData.CurrentDialogMsg = "ShopkeeperTeleportDebt";
+									return true;
+								}
+							},
+						}
+					},
+					"Pay": {
+						playertext: "Default", response: "Default",
+						prerequisiteFunction: (gagged) => {
+							return KinkyDungeonGold >= KDGameData.ShopkeeperFee;
+						},
+						clickFunction: (gagged) => {
+							KinkyDungeonGold -= KDGameData.ShopkeeperFee;
+							KDGameData.ShopkeeperFee = 0;
+							KinkyDungeonRemoveRestraintsWithShrine("Rope", undefined, true, false, true);
+							KinkyDungeonRemoveRestraintsWithShrine("Leather", undefined, true, false, true);
+							KinkyDungeonRemoveRestraintsWithShrine("Metal", undefined, true, false, true);
+							KinkyDungeonRemoveRestraintsWithShrine("Latex", undefined, true, false, true);
+							return false;
+						},
+						options: {
+							"Leave": {
+								playertext: "Leave", response: "Default",
+								exitDialogue: true,
+							},
+						}
+					},
+				}
+			},
 		}
 	},
 	"ShopkeeperStart": {
 		response: "Default",
 		clickFunction: (gagged) => {
+			if (!KDGameData.ShopkeeperFee) KDGameData.ShopkeeperFee = 0;
+			KDGameData.CurrentDialogMsgValue = {
+				"RESCUECOST": KDGameData.ShopkeeperFee || (KDDialogueParams.ShopkeeperFee + Math.max(0, KDDialogueParams.ShopkeeperFeePerLevel * MiniGameKinkyDungeonLevel)),
+			};
+			KDGameData.CurrentDialogMsgData = {
+				"RESCUECOST": "" + (KDGameData.ShopkeeperFee || (KDDialogueParams.ShopkeeperFee + Math.max(0, KDDialogueParams.ShopkeeperFeePerLevel * MiniGameKinkyDungeonLevel))),
+			};
 			return false;
 		},
 		options: {

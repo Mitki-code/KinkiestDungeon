@@ -15,6 +15,7 @@ let KDPatronCustomEnemies = new Map([
 		{name: "Emeia", color: "#00A7FF", prisoner: true, free: true, customSprite: ""},
 		{name: "Dana", color: "#4444ff", prisoner: true, free: true, customSprite: ""},
 		{name: "Yami", color: "#88ff88", prisoner: true, free: true, customSprite: ""},
+		{name: "Animi", color: "#ff9999", prisoner: true, free: false, customSprite: ""},
 	],
 	],
 	["WolfgirlPet", [
@@ -36,6 +37,10 @@ let KDPatronCustomEnemies = new Map([
 	["SlimeAdv", [
 		{name: "Rena", color: "#C8C8FF", prisoner: true, free: true, customSprite: ""},
 		{name: "Rappy The Toy", color: "#C759FF", prisoner: true, free: false, customSprite: ""},
+	],
+	],
+	["SmallSlime", [
+		{name: "TY", color: "#ff5555", prisoner: false, free: true, customSprite: ""},
 	],
 	],
 	["WitchRope", [
