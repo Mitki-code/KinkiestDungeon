@@ -2,6 +2,7 @@ import csv
 from collections import defaultdict
 import time
 import os
+import json
 import paratranz_client
 from paratranz_client.models.file import File
 from paratranz_client.rest import ApiException
@@ -42,9 +43,9 @@ def process_csv(input_file, output_file):
 async def paratran_update():
     async with paratranz_client.ApiClient(configuration) as api_client:
         api_instance = paratranz_client.FilesApi(api_client)
-        project_id = 13239 # int | 项目ID 13239 12190
-        file_id = 1834057 # int | 文件ID 1834057 1638395
-        file = "Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon_Temp.csv" # bytearray | 文件数据，格式需与创建时的文件保持一致，也可上传标准JSON格式（文件名需为原文件名加.json） (optional)
+        project_id = 12190 # int | 项目ID 13239 12190
+        file_id = 1638395 # int | 文件ID 1834057 1638395
+        file = output_csv # bytearray | 文件数据，格式需与创建时的文件保持一致，也可上传标准JSON格式（文件名需为原文件名加.json） (optional)
 
         try:
             # 更新文件
@@ -54,13 +55,38 @@ async def paratran_update():
         except Exception as e:
             print("Exception when calling FilesApi->update_file: %s\n" % e)
 
+async def paratran_download():
+    async with paratranz_client.ApiClient(configuration) as api_client:
+        api_instance = paratranz_client.FilesApi(api_client)
+        project_id = 12190 # int | 项目ID
+        file_id = 1638395 # int | 文件ID
+
+
+            # 文件翻译
+        data_raw = await api_instance.get_file_translation_with_http_info(project_id, file_id)
+        json_object = json.loads(data_raw.raw_data.decode())
+        json_object.sort(key=lambda x: x['id'])
+        output_content = []
+
+        output_content.append('前往 https://paratranz.cn/projects/12190 参加KD汉化')
+        output_content.append('')
+
+        for item in json_object:
+            if item['translation']:  # 如果translation不为空
+                output_content.append(item['original'])
+                output_content.append(item['translation'])
+
+        with open(output_txt, 'w', encoding='utf-8') as file:
+            for line in output_content:
+                file.write(line + '\n')
 
 # 输入文件和输出文件的路径
 input_csv = 'Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon.csv'
-output_csv = 'Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon_Temp.csv'
+output_csv = 'Text_KinkyDungeon_Temp.csv'
+output_txt = 'Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon_CN.txt'
 
 # 处理CSV文件
 process_csv(input_csv, output_csv)
-
-print(f"处理后的CSV文件已保存为 {output_csv}")
+print(f"save to {output_csv}")
 asyncio.run(paratran_update())
+asyncio.run(paratran_download())
