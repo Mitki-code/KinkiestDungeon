@@ -19713,6 +19713,11 @@ HeavyMaidKnight_SockLeft
 HeavyMaidKnight
 重装女仆骑士
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> origin/5.4
 
 
 ### BlondeFront
@@ -20355,6 +20360,7 @@ HeavyMaidKnight
 
 ### KittyPetPawsShortRestraint
 
+<<<<<<< HEAD
 ### CapeRestraint
 
 ### BreastplateRestraint
@@ -20484,6 +20490,9 @@ HeavyMaidKnight
 
 
 =======
+>>>>>>> origin/5.4
+=======
+>>>>>>> Stashed changes
 >>>>>>> origin/5.4
 Hide Items
 隐藏项目
@@ -23258,6 +23267,14 @@ You can ignore components for telekinetic spells, however spells generate distra
 
 =======
 你可以忽略心灵感应需要的法术的成分，但是当以这种方式施放法术时，由于精神过载，法术会让你产生性奋 ( 基于法力消耗 ) 。无法在 100% 性奋值 下使用。
+<<<<<<< HEAD
+>>>>>>> origin/5.4
+=======
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
 >>>>>>> origin/5.4
 Kinetic Mastery
 灵能大师
@@ -24936,8 +24953,16 @@ Removes a rune on the target tile. If cast on self, removes all runes you've cre
 移除目标地板上的一个符文。如果对自己施放，则会移除自己创建的所有符文。对敌方符文施放会恢复 10 法力值。如果对无符文的地板施放，则会消耗 5 法力值。
 =======
 否定符文
+<<<<<<< Updated upstream
 Removes a rune on the target tile. If cast on self, removes all runes you've created instead. Casting on an enemy rune restores 10 mana instead. Drains 5 mana if cast on a runeless tile.
 移除目标方块上的符文。如果对自己施放，则改为移除你创建的所有符文。如果对敌方符文施放，则改为恢复 10 点法力。
+<<<<<<< HEAD
+>>>>>>> origin/5.4
+=======
+=======
+### Removes a rune on the target tile. If cast on self, removes all runes you've created instead. Casting on an enemy rune restores 10 mana instead. Drains 5 mana if cast on a runeless tile.
+
+>>>>>>> Stashed changes
 >>>>>>> origin/5.4
 You scribe a negation rune!
 你写下了一个否决符文！
@@ -24956,6 +24981,14 @@ All of your runes have been removed.
 
 =======
 你的所有符文都已被移除。
+<<<<<<< HEAD
+>>>>>>> origin/5.4
+=======
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
 >>>>>>> origin/5.4
 E-Stimulation
 刺激电流
