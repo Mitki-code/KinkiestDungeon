@@ -1648,6 +1648,7 @@
             <key type="filename">../Game/FloorGeneric/SummitTeleporter.png</key>
             <key type="filename">../Game/FloorGeneric/Table.png</key>
             <key type="filename">../Game/FloorGeneric/TableCookies.png</key>
+            <key type="filename">../Game/FloorGeneric/TableFlipped.png</key>
             <key type="filename">../Game/FloorGeneric/TablePizza.png</key>
             <key type="filename">../Game/FloorGeneric/TablePlate.png</key>
             <key type="filename">../Game/FloorGeneric/Tablet.png</key>
@@ -3450,6 +3451,7 @@
             </struct>
             <key type="filename">../Game/ChangeSpell.png</key>
             <key type="filename">../Game/UI/ContextMenu/Stairs.png</key>
+            <key type="filename">../Game/UI/ContextMenu/Stop.png</key>
             <key type="filename">../Game/UI/ContextMenu/Wait.png</key>
             <key type="filename">../Game/UI/Expand.png</key>
             <key type="filename">../Game/UI/Labels.png</key>

@@ -22,8 +22,12 @@ let KDObjectClick: Record<string, (x: number, y: number) => boolean> = {
 			KinkyDungeonTargetTile = tile;
 			KDStartDialog("TableFood", "", true, "");
 			return true;
-		} else
+		} else {
+			KinkyDungeonTargetTileLocation = x + "," + y;
+			KinkyDungeonTargetTile = tile;
+			KDStartDialog("TableFlip", "", true, "");
 			KinkyDungeonFoodMessage(tile);
+		}
 		return false;
 	},
 	"Elevator": (x, y) => {
@@ -128,13 +132,13 @@ let KDObjectInteract: Record<string, (x: number, y: number, dist?: number) => bo
  */
 let KDTileInteract: Record<string, (x: number, y: number, dist?: number) => boolean> = {
 	'B': (x, y, dist) => {
-		if (dist != undefined ? dist : KDistChebyshev(x - KDPlayer().x, y - KDPlayer().y) < 1.5)
-			if (!KinkyDungeonFlags.get("slept") && !KinkyDungeonFlags.get("nobed") && KinkyDungeonStatWill < KinkyDungeonStatWillMax * 0.49) {
-				KDGameData.InteractTargetX = x;
-				KDGameData.InteractTargetY = y;
-				KDStartDialog("Bed", "", true);
-				return true;
-			}
+		// "nobed" flag is to prevent interacting with the bed during combat, because it's annoying if it keeps popping up every turn
+		if (dist != undefined ? dist : KDistChebyshev(x - KDPlayer().x, y - KDPlayer().y) < 1.5 && !KinkyDungeonFlags.get("nobed")) {
+			KDGameData.InteractTargetX = x;
+			KDGameData.InteractTargetY = y;
+			KDStartDialog("Bed", "", true);
+			return true;
+		}
 		return false;
 	},
 	'c': (x, y, dist) => {
