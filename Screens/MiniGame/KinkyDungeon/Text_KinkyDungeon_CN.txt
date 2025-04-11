@@ -45233,7 +45233,7 @@ ENMY 削弱了你对武器的控制力！如果你站得太近，敌人可能会
 您检索到一篇题为 “贞洁长袍 ”的有趣文章。
 
 - Took 
-受到了
+受到 
 
 - (As you slay the dragon, it begins shapeshifting into human form!)
 (当你杀死龙时，它开始变形为人形！ )
