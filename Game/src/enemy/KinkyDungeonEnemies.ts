@@ -3419,7 +3419,7 @@ function KDNearbyEnemies(x: number, y: number, dist: number, hostileEnemy?: enti
 	let cache = KDGetEnemyCache();
 	let list = [];
 	// We may end up just checking more...
-	if (!cache || (dist*dist > KDMapData.Entities.length)) {
+	if (!cache || (3*dist*dist > KDMapData.Entities.length)) {
 		if (cheb) {
 			for (let e of KDMapData.Entities) {
 				if (KDistChebyshev(x - e.x, y - e.y) <= dist
@@ -3428,7 +3428,7 @@ function KDNearbyEnemies(x: number, y: number, dist: number, hostileEnemy?: enti
 			}
 		} else {
 			for (let e of KDMapData.Entities) {
-				if (KDistEuclidean(x - e.x, y - e.y) <= dist
+				if (KDistEuclideanSquared(x - e.x, y - e.y) <= dist*dist
 					&& (!hostileEnemy || KDHostile(e, hostileEnemy))
 					&& (!nonhostileEnemy || !KDHostile(e, nonhostileEnemy))) list.push(e);
 			}
@@ -3452,7 +3452,7 @@ function KDNearbyEnemies(x: number, y: number, dist: number, hostileEnemy?: enti
 			for (let X = xmin; X < xmax; X++)
 				for (let Y = ymin; Y < ymax; Y++) {
 					e = cache.get(X + "," + Y);
-					if (e && KDistEuclidean(X - x, Y - y) <= dist && (!hostileEnemy || KDHostile(e, hostileEnemy))
+					if (e && KDistEuclideanSquared(X - x, Y - y) <= dist*dist && (!hostileEnemy || KDHostile(e, hostileEnemy))
 						&& (!nonhostileEnemy || !KDHostile(e, hostileEnemy))) list.push(e);
 				}
 		}
@@ -6095,6 +6095,7 @@ function KinkyDungeonEnemyLoop(enemy: entity, player: any, delta: number, vision
 											} else if (KDRandom() < cohesion) {
 												let minDist = enemy.Enemy.cohesionRange ? enemy.Enemy.cohesionRange : AIData.visionRadius;
 												let ent = KDNearbyEnemies(enemy.x, enemy.y, minDist);
+												minDist *= minDist;
 												for (let e of ent) {
 													if (e == enemy) continue;
 													if (['guard', 'ambush', 'looseguard'].includes(KDGetAI(enemy))) continue;
@@ -6105,7 +6106,7 @@ function KinkyDungeonEnemyLoop(enemy: entity, player: any, delta: number, vision
 													)) continue;
 													if (KDGetFaction(e) != KDGetFaction(enemy)) continue;
 													if (KinkyDungeonTilesGet(e.x + "," + e.y) && KinkyDungeonTilesGet(e.x + "," + e.y).OL) continue;
-													let dist = KDistEuclidean(e.x - enemy.x, e.y - enemy.y);
+													let dist = KDistEuclideanSquared(e.x - enemy.x, e.y - enemy.y);
 													if (dist < minDist) {
 														minDist = dist;
 														let ePoint = KinkyDungeonGetNearbyPoint(ex, ey, false);
@@ -8695,6 +8696,10 @@ function KDRunBondageResist (
 						KinkyDungeonRemoveRestraintSpecific(r, false,
 							undefined, undefined, undefined, undefined,
 							undefined, true);
+						if (!KinkyDungeonFlags.get("tut_armor")) {
+							KinkyDungeonSetFlag("tut_armor", -1);
+							KinkyDungeonSendTextMessage(10, TextGet("KDTut_ArmorLoadout"), KDTutorialColor, 4);
+						}
 						KinkyDungeonSendTextMessage(
 							5, TextGet("KDArmorBlock")
 								.replace("ArmorName", KDGetItemName(r))

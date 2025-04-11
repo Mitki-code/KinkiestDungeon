@@ -2223,6 +2223,7 @@ function KDGetStruggleData(data: KDStruggleData): string {
 		data.escapeChance -= data.escapePenalty;
 	}
 
+	// todo make edgebonus a bonus
 
 	if ((data.struggleType == "Struggle") && !data.hasAffinity
 		&& data.escapeChance <= 0 && data.escapeChance >= -edgeBonus && (!KDRestraint(data.restraint).alwaysEscapable || !KDRestraint(data.restraint).alwaysEscapable.includes(data.struggleType))) {
@@ -3310,6 +3311,39 @@ function KDGetWillPercent(applier : entity, penalty: number = 0): number {
 	return data.willPercent;
 }
 
+let geteligrest_lastTagsEnemy: KDHasTags = null;
+let geteligrest_lastIgnoreTags: string[] = null;
+let geteligrest_lastExtraTags: Record<string, number> = null;
+let geteligrest_lastTags: Map<string, boolean> = new Map();
+
+
+function  KDGeteligrest_gettags(effLevel: number, enemy: KDHasTags, ignoreTags: string[], extraTags: Record<string, number>): Map<string, boolean> {
+	let tags = new Map();
+	if (enemy.tags.length) {
+		for (let t of enemy.tags) {
+			tags.set(t, true);
+		}
+	} else {
+		for (let t of Object.keys(enemy.tags)) {
+			tags.set(t, true);
+		}
+	}
+	if (extraTags)
+		for (let t of Object.entries(extraTags)) {
+			if (effLevel >= +t[1])
+				tags.set(t[0], true);
+		}
+
+	if (ignoreTags) {
+		for (let ft of ignoreTags) {
+			tags.delete(ft);
+		}
+	}
+	return tags;
+}
+
+
+
 /**
  * @param enemy
  * @param Level
@@ -3368,27 +3402,20 @@ function KDGetRestraintsEligible (
 	let willPercent = KDGetWillPercent(securityEnemy, options?.willBonus);
 	//if (options?.willBonus) willPercent = Math.max(0, willPercent - options.willBonus);
 
-	let tags = new Map();
-	if (enemy.tags.length) {
-		for (let t of enemy.tags) {
-			tags.set(t, true);
-		}
-	} else {
-		for (let t of Object.keys(enemy.tags)) {
-			tags.set(t, true);
-		}
-	}
-	if (extraTags)
-		for (let t of Object.entries(extraTags)) {
-			if (effLevel >= +t[1])
-				tags.set(t[0], true);
-		}
+	let useMemo = geteligrest_lastTagsEnemy === enemy
+		&& geteligrest_lastIgnoreTags == filter?.ignoreTags
+		&& geteligrest_lastExtraTags == extraTags;
 
-	if (filter?.ignoreTags) {
-		for (let ft of filter.ignoreTags) {
-			tags.delete(ft);
-		}
+	let tags: Map<string, boolean> = useMemo ? geteligrest_lastTags : new Map();
+	if (!useMemo) {
+		tags = KDGeteligrest_gettags(effLevel, enemy, filter?.ignoreTags, extraTags);
+
+		geteligrest_lastTags = tags;
+		geteligrest_lastTagsEnemy = enemy;
+		geteligrest_lastIgnoreTags = filter?.ignoreTags;
+		geteligrest_lastExtraTags = extraTags;
 	}
+
 
 	let arousalMode = KinkyDungeonStatsChoice.get("arousalMode");
 	let cache: { r : restraint; w : number, inventory?: boolean, name?: string}[] = [];
@@ -3484,7 +3511,7 @@ function KDGetRestraintsEligible (
 						if ((!agnostic || KDNoOverrideTags.includes(tag)) && !KinkyDungeonPlayerTags.get(tag)) r.w *= restraint.playerTagsMissingMult[tag];
 
 
-				if (!(options?.dontAugmentWeight === false)) {
+				if (!agnostic && !(options?.dontAugmentWeight === false)) {
 					let mult = KDRestraintPowerMult(KinkyDungeonPlayerEntity, restraint, augmentedInventory);
 					if (Math.sign(mult) != Math.sign(r.w)) mult = 1;
 					r.w *= mult;

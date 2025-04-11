@@ -323,6 +323,7 @@ function KDDrawColorSliders(X: number, Y: number, C: Character, Model: Model): v
 	let YY = Y;
 	let width = 300;
 	let layers = KDGetColorableLayers(Model, KDPropsSlider);
+	if (!layers[0]) return;
 	if (!KDCurrentLayer) {
 		KDCurrentLayer = layers[0].name || "";
 		KDCurrentLayerOrig = layers[0].layer || "";
@@ -1076,7 +1077,7 @@ function KDUpdateModelList(level: number = 0, C?: Character): void {
 				(KDCategoryFilterSpecial[category] ? KDCategoryFilterSpecial[category](C, model[1], level, 1)
 				: model[1].Categories?.includes(category))) && (TestMode || !model[1].Restraint)) {
 				if (!KDModelListFilter
-					|| TextGet(model[0]).toLowerCase().includes(KDModelListFilter.toLowerCase()))
+					|| TextGet(model[0])?.toLowerCase().includes(KDModelListFilter.toLowerCase()))
 					KDModelList_Toplevel.push(model[0]);
 			}
 		}
@@ -1107,7 +1108,7 @@ function KDUpdateModelList(level: number = 0, C?: Character): void {
 						}))
 					)
 						 && model[0] == toplevel && (TestMode || !model[1].Restraint)) {
-						if (!KDModelListFilter || TextGet(model[1].Parent).toLowerCase().includes(KDModelListFilter.toLowerCase()))
+						if (!KDModelListFilter || TextGet(model[1].Parent)?.toLowerCase().includes(KDModelListFilter.toLowerCase()))
 							{already[model[0]] = true; KDModelList_Sublevel.push(model[0]);}
 					}
 				}
@@ -1117,7 +1118,7 @@ function KDUpdateModelList(level: number = 0, C?: Character): void {
 						|| (model[1].Parent2 && model[1].Parent2.some((p) => {
 							return toplevel == p;
 						}))) || KDModelListFilter) && (TestMode || !model[1].Restraint)) {
-						if (!KDModelListFilter || TextGet(model[1].Name).toLowerCase().includes(KDModelListFilter.toLowerCase()))
+						if (!KDModelListFilter || TextGet(model[1].Name)?.toLowerCase().includes(KDModelListFilter.toLowerCase()))
 							{already[model[0]] = true; KDModelList_Sublevel.push(model[0]);}
 					}
 				}
@@ -2630,6 +2631,8 @@ function KDGetLayerPropFields(): Record<keyof LayerPropertiesType, string> {
 		AddPose: ",",
 		DisplaceAmount: "1",
 		EraseAmount: "1",
+		NoLoss: "",
+		HideRestraintsTags: ",",
 	};
 }
 
