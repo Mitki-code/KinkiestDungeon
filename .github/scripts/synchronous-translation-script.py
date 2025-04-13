@@ -92,6 +92,6 @@ output_txt = 'Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon_CN_paratranz.txt'
 
 process_csv(input_csv, output_csv)
 print(f"save to {output_csv}")
-asyncio.run(paratran_update())
+#asyncio.run(paratran_update())
 asyncio.run(paratran_download())
 print('OK')
