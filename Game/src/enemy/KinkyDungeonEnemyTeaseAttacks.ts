@@ -506,6 +506,7 @@ let KDTeaseAttacks: KDTeaseAttacksType = {
 					if (!clothes.Lost && (clothes.Group == "Shoes" || (
 						StandalonePatched && ModelDefs[clothes.Item]?.Categories?.includes("Shoes")
 					))) {
+						if (clothes.Properties && Object.values(clothes.Properties).some((p) => {return p.NoLoss;})) continue;
 						clothes.Lost = true;
 						strip = true;
 					}
@@ -734,7 +735,7 @@ let KDTeaseAttacks: KDTeaseAttacksType = {
 						KDDoSlow(_player, 1);
 						let msg = TextGet("KinkyDungeonTorsoGrab").replace("RestraintName", KDGetItemNameString(harnessRestraintName)).replace("EnemyName", TextGet("Name" + enemy.Enemy.name));
 
-						KinkyDungeonSendTextMessage(5, msg, "#ff8933", 1);
+						KinkyDungeonSendTextMessage(5, msg, KDBaseOrange, 1);
 
 						if (KDRandom() < actionDialogueChance)
 							KinkyDungeonSendDialogue(enemy, TextGet("KinkyDungeonRemindJail" + (KDGetEnemyPlayLine(enemy) ? KDGetEnemyPlayLine(enemy) : "") + "Grab").replace("EnemyName", TextGet("Name" + enemy.Enemy.name)), KDGetColor(enemy), 2, 4);

@@ -33,6 +33,8 @@ interface item extends NamedAndTyped {
 	faction?: string,
 	/** Faction of the applied item, impossible to override */
 	forceFaction?: string,
+
+	flags?: Record<string, number>,
 	/** When added to the inventory, is added as a different item instead. Good for cursed items! */
 	inventoryVariant?: string,
 	/** Events associated with the item*/
@@ -83,6 +85,8 @@ interface item extends NamedAndTyped {
 
 interface consumable extends NamedAndTyped {
 	name: string,
+	range?: number,
+	maxInventory?: number,
 	/** 1 - (Rarity * sub value) = sub threshold */
 	sub?: number,
 	rarity: number,
@@ -101,6 +105,10 @@ interface consumable extends NamedAndTyped {
 	arousalMode?: boolean,
 	/** Data var */
 	data?: Record<string, string|number>,
+	/** Modular system */
+	itemEffect?: string,
+	/** Whats inside the potion??? */
+	contains?: string,
 	/** Requirement that overrides all other requirements */
 	prereq?: string,
 	/** Requirement in addition to all other requirements such as not being gagged for potions, bound, etc */
@@ -511,8 +519,6 @@ interface KDRestraintPropsBase {
 	forceOutfit?: string,
 	/** Outfit to force (priority default = base power) */
 	forceOutfitPriority?: number,
-	/** Clothes for dressing */
-	alwaysDress?: overrideDisplayItem[],
 	/** Clothes for dressing */
 	alwaysDressModel?: alwaysDressModel[],
 	/** The item always bypasses covering items, such as dresses and chastity belts */
@@ -947,6 +953,8 @@ interface enemy extends KDHasTags {
 	spellResist?: number,
 	/** Whether or not the enemy is friendly to the player and attacks enemies */
 	allied?: boolean,
+	/** Trats player willpower percentage as by this much lower */
+	willBonus?: number,
 	/** Enemies will prioritize this enemy less than other enemies. Used by allies only. */
 	lowpriority? : boolean,
 	/** lookup condition in KDPathConditions,
@@ -970,6 +978,7 @@ interface enemy extends KDHasTags {
 	hidetimerbar?: boolean,
 	Attack?: {
 		mustBindorFail?: boolean,
+		noFailifHasWP?: boolean,
 	},
 	/** Contains data pertaining to the creature's awareness */
 	Awareness?: {
@@ -1323,6 +1332,9 @@ interface enemy extends KDHasTags {
 			applyVariant?: string}[],
 	},
 	attackBonus?: number,
+
+	/** Does not leash the player */
+	noLeash?: boolean,
 	/** */
 	cohesion?: number,
 	/** */
@@ -1506,19 +1518,21 @@ interface weapon extends damageInfo, NamedAndTyped {
 	nocrit?: boolean;
 	noblock?: boolean,
 	tags?: string[];
-	special?: {
-		noSkip?: boolean,
-		type: string,
-		spell?: string,
-		prereq?: string,
-		selfCast?: boolean,
-		requiresEnergy?: boolean,
-		energyCost?: number,
-		range?: number,};
+	special?: KDWeaponSpecial;
 	/** Can be used with Floating weapon even with no hands */
 	telekinetic?: boolean,
 }
 
+interface KDWeaponSpecial {
+    noSkip?: boolean;
+    type: string;
+    spell?: string;
+    prereq?: string;
+    selfCast?: boolean;
+    requiresEnergy?: boolean;
+    energyCost?: number;
+    range?: number;
+}
 
 interface KinkyDungeonEvent {
 	sprite?: string,
@@ -1929,7 +1943,7 @@ interface entity {
 	playWithPlayerCD?: number,
 
 	IntentAction?: string,
-	IntentLeashPoint?: {x: number, y: number, type: string, radius: number},
+	IntentLeashPoint?: {x: number, y: number, type: string, radius: number, entrance?: boolean},
 
 	CurrentAction?: string,
 	RemainingJailLeashTourWaypoints?: number,
@@ -2241,6 +2255,8 @@ interface spell {
 	learnPage?: string[],
 	/** This spell wont trigger an aggro action */
 	noAggro?: boolean;
+	/** itemeffect linked to this cast */
+	itemEffect?: string;
 	/** Whether the spell defaults to the Player faction */
 	allySpell?: boolean;
 	/** This spell wont friendly fire the player */
@@ -2318,6 +2334,10 @@ interface spell {
 	costOnToggle?: boolean;
 	/** Type of the spell */
 	type: string;
+	/** Do not consume consumable */
+	noconsume?: boolean,
+	/** quantity of consumables */
+	quantity?: number,
 	/** Type of effect on hit */
 	onhit?: string;
 	/** Duration of the status effect applied */
@@ -2506,9 +2526,10 @@ interface KDQuest {
 };
 
 interface KDPoint {x: number, y: number}
-interface KDJailPoint extends KDPoint {type: string, radius: number, requireLeash?: boolean, requireFurniture?: boolean, direction?:{x: number, y: number}, restraint?:string, restrainttags?:string[]}
+interface KDJailPoint extends KDPoint {type: string, entrance?: boolean, radius: number, requireLeash?: boolean, requireFurniture?: boolean, direction?:{x: number, y: number}, restraint?:string, restrainttags?:string[]}
 
 interface KinkyDialogue {
+	image?: string,
 	/** REPLACETEXT -> Replacement */
 	data?: Record<string, string>;
 	/** Tags for filtering */
@@ -2644,6 +2665,7 @@ interface VibeMod {
 }
 
 interface KDStruggleData {
+	angelHelp: boolean,
 	minSpeed: number;
 	handBondage: number;
 	armsBound: boolean;
@@ -2655,6 +2677,8 @@ interface KDStruggleData {
 	escapeChance: number,
 	cutBonus: number,
 	origEscapeChance: number,
+	/** Gets set to a low value when escapeChance would be clipped to 0, helping player understand how helpless */
+	lowEscapeChance: number,
 	origLimitChance: number,
 	helpChance: number,
 	limitChance: number,
@@ -2671,6 +2695,8 @@ interface KDStruggleData {
 	canCut: boolean,
 	canCutMagic: boolean,
 	toolBonus: number,
+	cutMultBonus: number,
+	cutMult: number,
 	toolMult: number,
 	buffBonus: number,
 	buffMult: number,
@@ -3070,6 +3096,7 @@ interface KDMapDataType {
 	JailFaction: string[],
 	GuardFaction: string[],
 	MapFaction: string,
+	clickHeadpatted: boolean
 }
 
 
@@ -3313,7 +3340,7 @@ interface KDAIData extends KDAITriggerData {
 	/** Position to leash/pull the player to */
 	leashPos?: {x: number, y: number},
 	/** nearest jail to take the player to */
-	nearestJail?: {x: number, y: number, type: string, radius: number},
+	nearestJail?: KDJailPoint,
 
 	/** Enemy to follow */
 	master?: entity,

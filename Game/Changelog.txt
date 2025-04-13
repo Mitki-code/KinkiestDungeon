@@ -38,8 +38,122 @@ TODO Add Cuddle play type
 TODO add custom palette
 TODO also I might need to maybe fade out or hide slots that the player doesnt have any equippable restraints in
 
+
+MODDERS: In 5.4.46 (commit 851e8941e9233ff4ee3952c5aacde7323ff0b0f1) I changed the handling of floor types considerably when passing thru stairs. Please handle accordingly.
+
+5.5.1
+- Added Kjus eyes 5
+
+5.4.63
+- Added names to furniture tooltips
+- Added max inventory storage value to consumable quantity
+- Fixed a bug where wearing a swimsuit that doesn't get drawn still hides other clothes
+- Fixed a bug where having any slime at all removes your clothes
+- Fixed a bug where WP would be lost-in-transit while regenerating with Mental Defiance
+- Fixed a bug where a restraint shrine wouldn't properly remove items if the top level item was unremovable
+- Fixed a bug where selfish leashers would shove you into the wall instead of the exit stairs
+- Fixed an issue where selfish leashers would leash you repeatedly between multiple stairs for funzies
+- Fixed issue where interacting with furniture traps doesn't show what kind of furniture
+- Fixed an issue where favoriting an item you are wearing favorites the mundane version
+
+5.4.62
+- Fixed bug where some player tags for the character didn't get added to the paperdoll model
+
+5.4.61
+- Unavailable context menu options are now greyed out
+- Added support for colored context menu text
+- Fixed various crashes in wardrobe
+- Added headpats toggle (disabled by default due to bugs)
+- Recolored warden's belt
+- Fixed latex boots never appearing ingame
+
+5.4.60
+- Optimized map generation so map generation is faster
+- Fixed the entire LoadTranslations function for mods missing o.o
+
+5.4.59
+- Click and hold on mobile now should open the context menu
+- Added some variables to help support click and drag development
+- Bugfix: Auto-move doesnt cancel when attacking
+- Bugfix: Punching hostiles in the face made them like you
+- Bugfix: Unidentified items no longer show stats in containers
+- Bugfix: Fix many missing lines caused by text provider rework
+- Bugfix: Fix flickering flirt dialogue
+- Bugfix: Fix wolf panties events not triggering when worn underneath something else
+- Bugfix: Choosing a multiclass option in NG+ actually works now
+- Bugfix: Starting restraints with certain starting perks now follow level restrictions more closely (with a minimum to keep from being trivial)
+
+
+5.4.58
+- Enabled headpats (thanks Enraa!)
+- Can now do selfbondage with rope, slime, and other generic materials
+- Added reinforced links
+- Added Steel cuffs
+- Yokes now prevent you from using hands on any restraints above the lower body
+- Novice pet no longer protects you from knockdowns while petsuited
+- Can now increase difficulty when doing NGP
+
+5.4.57
+- Problem solving now gives flat 20% bonus to bonuses
+- Angel now gives +15% bonus to Struggle
+- Fixed bugs with journey map not working properly
+
+5.4.56
+- Elven soap now boosts Remove, Unlock, and Pick by a lot and Struggle by less
+- Can now right click character portrait to show quick inv
+- Inventory limits are now in play (most consumables max 10). Can be toggled off in game options.
+- Added storage to elevator and perk room
+- allow selling stored items from shoppe
+- Angel now boosts cut by 5% more and remove by 10% more
+- Super strength works a bit differently but should be similar in power level
+- For mods: added restraint flags system
+
+5.4.55
+- added 'Show (mostly) full tooltips' toggle
+- added tutorial message about cycling tooltips
+- fixed bug where Fighter's Break Free and rogue's Hard To Catch were much stronger than intended
+- Basic Leash made more 'stretchy'
+
+5.4.54
+- Fixed highsec collar and blindfold not showing up as outfit options
+- added context menu options for tease, attack, aggro, and capture
+- added experimental context menu to activate weapon special
+
+5.4.53
+- Bugfixes
+
+5.4.52
+- Added latex kitty enemy
+
+5.4.51
+- Added Masterwork Gear enemy
+
+5.4.50
+- KinkyDungeonUpdateTether has been updated (modders beware)
+- Pickaxe buffed to remove 20 armor (and also fixed so it removes armor instead of adding)
+- Rubber locks can now be melted off with latex solvent
+
+
+5.4.49
+- Fixed many bugs
+- Escaping a slow via sprinting now always costs an extra 50 sp instead of 2x
+- Strip search should happen when jailed in more situations
+- Fixed the garters on the hisec corset not connecting to the thighhighs
+- Split corset into hardware layer as well
+
+5.4.48
+- Added HighSec restraints (and fashion restraints)
+
+5.4.47
+- Made some extensive changes to LinkUnder algorithm; hopefully less anomalous activity
+
+5.4.46
+- Fixed some bugs with worldgen
+
 5.4.44, 5.4.55
 - Fixed some memory leaks
+- Added text fading to make it more readable when there are floaters in the way
+- Fixed some bugs with text floaters being erratic
 
 5.4.43
 - Sagitta now tracks the target similar to other delayed spells

@@ -5,21 +5,14 @@ permissions:
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'newartwork'
-    paths:
-      - "Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon.csv"
-      - "Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon_CN.txt"
-
-concurrency:
-  group: tranlation-handle-${{ github.ref }}
-  cancel-in-progress: false
-
+  schedule:
+    - cron: '0 0 * * *'
+    
 jobs:
   synchronous-translation:
     runs-on: ubuntu-latest
-    #if: github.repository == 'Ada18980/KinkiestDungeon'
+    if: github.repository == 'Ada18980/KinkiestDungeon'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -46,12 +39,12 @@ jobs:
           PATH_ORIGIN="Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon_CN.txt"
           PATH_TEMP=$(mktemp)
           
-          cat "$PATH_PARATRANZ" > "$PATH_TEMP"
+          cat "$PATH_ORIGIN" > "$PATH_TEMP"
           printf "\n\n" >> "$PATH_TEMP"
-          cat "$PATH_ORIGIN" >> "$PATH_TEMP"
-          mv "$PATH_TEMP" "$PATH_ORIGIN"
+          cat "$PATH_PARATRANZ" >> "$PATH_TEMP"
+          mv "$PATH_TEMP" "$PATH_ORIGIN" 
           
-          python .github/scripts/format-translation-script.py "Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon_CN.txt"
+          python .github/scripts/format-translation-script.py --translation_files Screens/MiniGame/KinkyDungeon/Text_KinkyDungeon_CN.txt
 
       - name: 📝 Commit changes
         id: check_changes

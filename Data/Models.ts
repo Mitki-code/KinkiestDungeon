@@ -1659,7 +1659,7 @@ function DrawCharacterModels(containerID: string, MC: ModelContainer, X, Y, Zoom
 						cullable: KDCulling,
 					}, false,
 					ContainerContainer.SpritesDrawn,
-					Zoom, undefined
+					Zoom, false
 				);
 				//}
 
@@ -1745,7 +1745,7 @@ function ModelDrawLayer(MC: ModelContainer, Model: Model, Layer: ModelLayer, Pos
 	}
 	if (Layer.HidePrefixPose) {
 		for (let p of Layer.HidePrefixPose) {
-			if (Poses[p]) {
+			if (Poses[p + LayerLayer(MC, Layer, Model)]) {
 				return false;
 			}
 			if (Layer.HidePrefixPoseSuffix) {
@@ -1910,7 +1910,9 @@ function LayerSpriteCustom(Layer: ModelLayer, Poses: {[_: string]: boolean}, Spr
 
 	if (Layer.AppendPose && !forceInvariant && !noAppend) {
 		for (let p of Object.entries(Layer.AppendPose)) {
-			if (Poses[p[0]] != undefined && (!Layer.AppendPoseRequire || Layer.AppendPoseRequire[p[0]])) {
+			if (Poses[p[0]] != undefined && (!Layer.AppendPoseRequire ||
+				Object.keys(Layer.AppendPoseRequire).some((ap) => {return !!Poses[ap];})
+			)) {
 				pose = pose + (p[1]);
 				break;
 			}
@@ -1918,7 +1920,9 @@ function LayerSpriteCustom(Layer: ModelLayer, Poses: {[_: string]: boolean}, Spr
 	}
 	if (Layer.AppendPoseMulti && !forceInvariant && !noAppend) {
 		for (let p of Object.entries(Layer.AppendPoseMulti)) {
-			if (Poses[p[0]] != undefined && (!Layer.AppendPoseRequire || Layer.AppendPoseRequire[p[0]])) {
+			if (Poses[p[0]] != undefined && (!Layer.AppendPoseRequire ||
+				Object.keys(Layer.AppendPoseRequire).some((ap) => {return !!Poses[ap];})
+			)) {
 				pose = pose + (p[1]);
 			}
 		}

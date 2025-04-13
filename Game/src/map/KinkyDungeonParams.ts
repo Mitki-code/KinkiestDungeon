@@ -12,7 +12,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 		successorSame: {
 			menu: 1.0,
 		},
-		color: "#ffffff",
+		color: KDBaseWhite,
 		music: {
 			"GENERIC-DOLLRACK.ogg": 4,
 		},
@@ -66,7 +66,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 		successorSame: {
 			menu: 1.0,
 		},
-		color: "#ffffff",
+		color: KDBaseWhite,
 		music: {
 			"GENERIC-DOLLRACK.ogg": 4,
 			//"Shopping.ogg": 10,
@@ -121,7 +121,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 		successorSame: {
 			bandit: 1.0,
 		},
-		color: "#ffffff",
+		color: KDBaseWhite,
 		music: {
 			"Ada18980_SmokingIsBadForYou.ogg": 4,
 		},
@@ -183,6 +183,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 		"traps": [
 			{Name: "CustomSleepDart", Level: 0, Power: 1, Weight: 30},
 			{Name: "SpecificSpell", Spell: "TrapShackleWeak", Level: 0, Power: 1, Weight: 30},
+			{Name: "SpecificSpell", Spell: "TrapLinks", Level: 4, Power: 1, Weight: 40},
 			{Name: "SpecificSpell", Spell: "TrapRopeWeak", Level: 0, Power: 3, Weight: 30},
 			{Name: "SpecificSpell", Spell: "TrapLeatherWeak", Level: 0, Power: 3, Weight: 30},
 			{Name: "SpawnEnemies", Enemy: "Bandit", strict: true, Level: 0, Power: 2, Weight: 10},
@@ -257,6 +258,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 			{Name: "SpecificSpell", Spell: "TrapLeatherWeak", Level: 0, Power: 3, Weight: 30},
 			{Name: "SpecificSpell", Spell: "TrapLustCloud", Level: 0, Power: 3, Weight: 30},
 			{Name: "SpawnEnemies", Faction: "Enemy", Enemy: "SummonedZombie", strict: true, Level: 0, Power: 4, Weight: 30},
+			{Name: "SpecificSpell", Spell: "TrapLinks", Level: 4, Power: 1, Weight: 40},
 
 			{Name: "SpawnEnemies", Enemy: "Gag", strict: true, Level: 0, Power: 1, Weight: 10, filterTag: "ItemMouthFull", filterBackup: "SummonedZombie"},
 			{Name: "SpawnEnemies", Enemy: "Cuffs", strict: true, Level: 0, Power: 1, Weight: 10, filterTag: "ItemArmsFull", filterBackup: "SummonedZombie"},
@@ -364,6 +366,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 		"traps": [
 			{Name: "CustomSleepDart", Level: 0, Power: 1, Weight: 30},
 			{Name: "SpecificSpell", Spell: "TrapShackleWeak", Level: 0, Power: 1, Weight: 30},
+			{Name: "SpecificSpell", Spell: "TrapLinks", Level: 4, Power: 1, Weight: 40},
 			{Name: "SpecificSpell", Spell: "TrapRopeWeak", Level: 0, Power: 3, Weight: 30},
 			{Name: "SpecificSpell", Spell: "TrapLeatherWeak", Level: 0, Power: 3, Weight: 30},
 			{Name: "SpecificSpell", Spell: "SpikeTrap", Level: 0, Power: 4, Weight: 70},
@@ -550,6 +553,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 			{Name: "SpecificSpell", Spell: "TrapLeatherWeak", Level: 0, Power: 3, Weight: 10},
 			{Name: "SpecificSpell", Spell: "TrapLustCloud", Level: 0, Power: 3, Weight: 30},
 			{Name: "SpawnEnemies", Enemy: "Bandit", strict: true, Level: 0, Power: 3, Weight: 10},
+			{Name: "SpecificSpell", Spell: "TrapLinks", Level: 4, Power: 1, Weight: 40},
 
 			{Name: "SpawnEnemies", Enemy: "Gag", strict: true, Level: 0, Power: 1, Weight: 10, filterTag: "ItemMouthFull", filterBackup: "VinePlant"},
 			{Name: "SpawnEnemies", Enemy: "Cuffs", strict: true, Level: 0, Power: 1, Weight: 10, filterTag: "ItemArmsFull", filterBackup: "VinePlant"},
@@ -908,6 +912,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 			{Name: "SpecificSpell", Spell: "TrapLatexBall", Level: 0, Power: 3, Weight: 7},
 			{Name: "SpawnEnemies", Enemy: "Dressmaker", strict: true, Level: 0, Power: 2, Weight: 10},
 			{Name: "SpawnEnemies", Enemy: "Librarian", strict: true, Level: 4, Power: 1, Weight: 5},
+			{Name: "SpecificSpell", Spell: "TrapLinks", Level: 4, Power: 1, Weight: 40},
 
 			{Name: "SpawnEnemies", Enemy: "Gag", strict: true, Level: 0, Power: 2, Weight: 10, filterTag: "ItemMouthFull", filterBackup: "BookBondage"},
 			{Name: "SpawnEnemies", Enemy: "Cuffs", strict: true, Level: 0, Power: 2, Weight: 10, filterTag: "ItemArmsFull", filterBackup: "BookBondage"},
@@ -1806,6 +1811,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 			{Name: "SpecificSpell", Spell: "TrapLatex", Level: 0, Power: 3, Weight: 30},
 			{Name: "SpecificSpell", Spell: "TrapLatexBubble", Level: 0, Power: 3, Weight: 25},
 			{Name: "SpecificSpell", Spell: "TrapLatexBall", Level: 0, Power: 3, Weight: 15},
+			{Name: "SpecificSpell", Spell: "TrapLinks", Level: 4, Power: 1, Weight: 40},
 
 			{Name: "SpawnEnemies", Enemy: "Gag", strict: true, Level: 0, Power: 2, Weight: 10, filterTag: "ItemMouthFull", filterBackup: "OldDrone"},
 			{Name: "SpawnEnemies", Enemy: "Cuffs", strict: true, Level: 0, Power: 2, Weight: 10, filterTag: "ItemArmsFull", filterBackup: "OldDrone"},
@@ -1969,7 +1975,7 @@ const KinkyDungeonMapParams: Record<mapKey, floorParams> = {
 			DemonTransition: 1.0,
 		},
 		color: "#222222",
-		shadowColor: 0x000000,
+		shadowColor: 0x010203,
 		"background" : "Dungeon",
 		"openness" : 0,
 		"density" : 2,

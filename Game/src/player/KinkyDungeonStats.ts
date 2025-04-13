@@ -423,6 +423,7 @@ function KDIsAutoAction(): boolean {
 function KDCancelAutoWait() {
 	KinkyDungeonAutoWait = false;
 	KinkyDungeonAutoWaitStruggle = false;
+	KinkyDungeonTempWait = false;
 }
 
 /**
@@ -430,6 +431,7 @@ function KDCancelAutoWait() {
  */
 function KDDisableAutoWait() {
 	KDCancelAutoWait();
+	KinkyDungeonFastMovePath = [];
 	KDAutoWaitDelayed = false;
 	KDSendInput("autoprune", {force: true});
 }
@@ -1412,13 +1414,15 @@ function KinkyDungeonCanUseWeapon(NoOverride?: boolean, e?: boolean, weapon?: we
 		HandsFree: false,
 		clumsy: weapon?.clumsy,
 		weapon: weapon,
+		treatAsHandsBound: false,
 	};
 	if (!NoOverride)
 		KinkyDungeonSendEvent("getWeapon", {event: e, flags: flags});
 	return flags.HandsFree
 		|| weapon?.noHands
-		|| (!KinkyDungeonIsHandsBound(false, true)
-			&& ((!KinkyDungeonStatsChoice.get("WeakGrip") && !flags.clumsy) || !KinkyDungeonIsArmsBound(false, true)));
+		|| (!(flags.treatAsHandsBound || KinkyDungeonIsHandsBound(false, true))
+			&& ((!KinkyDungeonStatsChoice.get("WeakGrip") && !flags.clumsy)
+			|| !(flags.treatAsHandsBound || KinkyDungeonIsHandsBound(false, true))));
 }
 
 let KDBlindnessCap = 0;
@@ -1587,45 +1591,12 @@ function KinkyDungeonUpdateStats(delta: number): void {
 	if (delta > 0 && KDGameData.StaminaSlow > 0) KDGameData.StaminaSlow -= delta;
 	if (delta > 0 && KDGameData.ManaSlow > 0) KDGameData.ManaSlow -= delta;
 
-	let baseRate = KinkyDungeonStatsChoice.get("PoorBalance") ? 0.5 : 1;
-	let kneelRate = baseRate * (KinkyDungeonIsArmsBound() ? 0.85 : 1);
-	if (KinkyDungeonSlowLevel > 2) kneelRate *= 0.85;
-	let restriction = KDGameData.Restriction || 0;
-	if (restriction) {
-		kneelRate *= 10 / (10 + restriction);
-	}
 
-	let minKneel = 0;
-	if (KinkyDungeonStatsChoice.get("Grounded") && (KinkyDungeonIsArmsBound() && KinkyDungeonLegsBlocked())) {
-		minKneel = 1;
-	}
+	let curTurns = KDGameData.KneelTurns;
 
-	if (KDGameData.KneelTurns > 0 && !KDForcedToGround() && !KDGameData.Crouch && (kneelRate < baseRate || minKneel > 0)) {
-		if (KinkyDungeonHasHelp()) {
-			kneelRate = baseRate;
-			if (minKneel > 0) {
-				minKneel = 0;
-			}
-			KinkyDungeonSendTextMessage(4, TextGet("KDGetUpAlly"), "#ffffff",1, !(KDGameData.KneelTurns <= delta*kneelRate));
-
-		} else if (KinkyDungeonStatsChoice.get("Grounded") && KinkyDungeonGetAffinity(false, "Corner", undefined, undefined)) {
-			minKneel = 0;
-			kneelRate = Math.min(baseRate * 1.4, kneelRate + 0.2);
-			KinkyDungeonSendTextMessage(4, TextGet("KDGetUpCorner"), "#ffffff",1, !(KDGameData.KneelTurns <= delta*kneelRate));
-		} else if (KinkyDungeonStatsChoice.get("Grounded") && KinkyDungeonGetAffinity(false, "Wall", undefined, undefined)) {
-			minKneel = 0;
-			kneelRate *= 0.65;
-			//if (KDGameData.KneelTurns <= kneelRate) {
-			KinkyDungeonSendTextMessage(4, TextGet("KDGetUpWall"), "#ffffff",1, !(KDGameData.KneelTurns <= delta*kneelRate));
-			//}
-		}
-
-		if (minKneel > 0) {
-			KinkyDungeonSendActionMessage(1, TextGet("KDKneelCannot"), "#ff8933",1, true);
-		} else if (kneelRate < 1) {
-			KinkyDungeonSendTextMessage(4, TextGet("KDKneelSlow"), "#ffffff",1, true);
-		}
-	}
+	let KneelStats = KDGetKneelStats(delta, true);
+	let minKneel = KneelStats.minKneel;
+	let kneelRate = KneelStats.kneelRate;
 
 
 	if (delta > 0 && KDGameData.KneelTurns > minKneel) KDGameData.KneelTurns -= delta*kneelRate;
@@ -1638,6 +1609,10 @@ function KinkyDungeonUpdateStats(delta: number): void {
 		}
 
 		stamRegen *= 2;
+	}
+
+	if (curTurns != KDGameData.KneelTurns && KDGameData.KneelTurns <= 0) {
+		KDCancelAutoWait();
 	}
 
 	if (KDGameData.AncientEnergyLevel > 0.01) {
@@ -1712,7 +1687,7 @@ function KinkyDungeonUpdateStats(delta: number): void {
 			KinkyDungeonBlindLevel = Math.max(KinkyDungeonBlindLevel + Math.floor(KinkyDungeonSleepiness*0.5), Math.min(Math.round(KinkyDungeonSleepiness*0.7), 6));
 		}
 		if (KinkyDungeonSleepiness > 0) {
-			KinkyDungeonSendActionMessage(4, TextGet("KinkyDungeonSleepy"), "#ff5277", 1, true);
+			KinkyDungeonSendActionMessage(4, TextGet("KinkyDungeonSleepy"), KDBaseRed, 1, true);
 		}
 		if (KinkyDungeonSleepiness > 4.99) {
 			KDGameData.KneelTurns = Math.max(KDGameData.KneelTurns || 0, 2);
@@ -1743,7 +1718,7 @@ function KinkyDungeonUpdateStats(delta: number): void {
 		KDChangeWill("player", "edge", "tick", data.edgeDrain);
 		let vibe = KinkyDungeonVibeLevel > 0 ? "Vibe" : "";
 		let suff = KDGameData.OrgasmStage < KinkyDungeonMaxOrgasmStage ? (KDGameData.OrgasmStage < KinkyDungeonMaxOrgasmStage / 2 ? "0" : "1") : "2";
-		KinkyDungeonSendTextMessage(4, TextGet("KinkyDungeonOrgasmExhaustion" + vibe + suff), "#ff5277", 2, true);
+		KinkyDungeonSendTextMessage(4, TextGet("KinkyDungeonOrgasmExhaustion" + vibe + suff), KDBaseRed, 2, true);
 	}
 
 	if (!KinkyDungeonHasWill(0.1)) {
@@ -1752,7 +1727,7 @@ function KinkyDungeonUpdateStats(delta: number): void {
 			id: "NoWP",
 			duration: 1,
 			buffSprite: true,
-			aura: "#ff5277",
+			aura: KDBaseRed,
 			auraSprite: "NoWP",
 			type: "EvasionPenalty",
 			power: 1,
@@ -1778,6 +1753,9 @@ function KinkyDungeonUpdateStats(delta: number): void {
 	if (delta > 0) {
 		if (!KDGameData.BalancePause)
 			KDChangeBalanceSrc("player", "balance", "tick", (KDGameData.KneelTurns > 0 ? 1.5 : 1.0) * KDGetBalanceRate()*delta, true);
+		else {
+			KDChangeBalanceSrc("player", "balance", "tick", (KDGameData.KneelTurns > 0 ? 0.015 : 0.01) * KDGetBalanceRate()*delta, true);
+		}
 		KDGameData.BalancePause = false;
 	}
 
@@ -1793,19 +1771,18 @@ function KinkyDungeonUpdateStats(delta: number): void {
 	let drains = [];
 
 
-	for (let item of KinkyDungeonFullInventory()) {
-		if (item.type == Restraint) {
-			if (KDRestraint(item).difficultyBonus) {
-				KinkyDungeonDifficulty += KDRestraint(item).difficultyBonus;
+	for (let pair of KinkyDungeonAllRestraintDynamic()) {
+		let item = pair.item;
+		if (KDRestraint(item).difficultyBonus) {
+			KinkyDungeonDifficulty += KDRestraint(item).difficultyBonus;
+		}
+		if (KDRestraint(item).crotchrope) KinkyDungeonHasCrotchRope = true;
+		if (KDRestraint(item).enchantedDrain) {
+			if (KDGameData.AncientEnergyLevel > 0) {
+				//maxDrain = Math.max(maxDrain, KDRestraint(item).enchantedDrain);
+				drains.push(KDRestraint(item).enchantedDrain);
 			}
-			if (KDRestraint(item).crotchrope) KinkyDungeonHasCrotchRope = true;
-			if (KDRestraint(item).enchantedDrain) {
-				if (KDGameData.AncientEnergyLevel > 0) {
-					//maxDrain = Math.max(maxDrain, KDRestraint(item).enchantedDrain);
-					drains.push(KDRestraint(item).enchantedDrain);
-				}
-				//KDGameData.AncientEnergyLevel = Math.max(0, KDGameData.AncientEnergyLevel - KDRestraint(item).enchantedDrain * delta);
-			}
+			//KDGameData.AncientEnergyLevel = Math.max(0, KDGameData.AncientEnergyLevel - KDRestraint(item).enchantedDrain * delta);
 		}
 	}
 	if (drains.length > 0 && delta > 0) {
@@ -1988,7 +1965,7 @@ function KinkyDungeonCalculateSlowLevel(delta?: number) {
 	if (KDGameData.Crouch) {
 		// Force slowness when crouching
 		if (KinkyDungeonSlowLevel < 2 && delta > 0 && KinkyDungeonLastAction == "Move") {
-			KinkyDungeonSendActionMessage(9, TextGet("KDPetsuitCrawl"), "#ffffff", 1, true);
+			KinkyDungeonSendActionMessage(9, TextGet("KDPetsuitCrawl"), KDBaseWhite, 1, true);
 		}
 		KinkyDungeonSlowLevel = Math.max(2, KinkyDungeonSlowLevel);
 	}
@@ -2401,4 +2378,78 @@ function KDGetInertia(player: entity): number {
 
 	data.base += data.inertia
 	return data.base;
+}
+
+interface KDKneelData {
+	baseRate: number,
+	kneelRate: number,
+	delta: number,
+	msg: boolean,
+	minKneel: number,
+}
+
+function KDIsGrounded() {
+	return KinkyDungeonStatsChoice.get("Grounded") && (KinkyDungeonIsArmsBound() && KinkyDungeonLegsBlocked());
+}
+
+function KDGetKneelStats(delta: number, msg: boolean): KDKneelData {
+	let data: KDKneelData = {
+		baseRate: KinkyDungeonStatsChoice.get("PoorBalance") ? 0.5 : 1,
+		kneelRate: 1,
+		minKneel: 0,
+		delta: delta,
+		msg: msg,
+	};
+	KinkyDungeonSendEvent("beforeKneelRate", data);
+
+	data.kneelRate = data.baseRate * (KinkyDungeonIsArmsBound() ? 0.85 : 1);
+
+	if (KinkyDungeonSlowLevel > 2) data.kneelRate *= 0.85;
+	let restriction = KDGameData.Restriction || 0;
+	if (restriction) {
+		data.kneelRate *= 10 / (10 + restriction);
+	}
+
+
+	if (KDIsGrounded()) {
+		data.minKneel = 1;
+	}
+
+	if (KDGameData.KneelTurns > 0 && !KDForcedToGround() && !KDGameData.Crouch && (data.kneelRate < data.baseRate || data.minKneel > 0)) {
+
+		if (KinkyDungeonHasHelp()) {
+			data.kneelRate = data.baseRate;
+			if (data.minKneel > 0) {
+				data.minKneel = 0;
+			}
+			if (msg)
+				KinkyDungeonSendTextMessage(4, TextGet("KDGetUpAlly"), KDBaseWhite,1, !(KDGameData.KneelTurns <= delta*data.kneelRate));
+
+		} else if (KinkyDungeonStatsChoice.get("Grounded") && KinkyDungeonGetAffinity(false, "Corner", undefined, undefined)) {
+			data.minKneel = 0;
+			data.kneelRate = Math.min(data.baseRate * 1.4, data.kneelRate + 0.2);
+			if (msg)
+				KinkyDungeonSendTextMessage(4, TextGet("KDGetUpCorner"), KDBaseWhite,1, !(KDGameData.KneelTurns <= delta*data.kneelRate));
+		} else if (KinkyDungeonStatsChoice.get("Grounded") && KinkyDungeonGetAffinity(false, "Wall", undefined, undefined)) {
+			data.minKneel = 0;
+			data.kneelRate *= 0.65;
+			//if (KDGameData.KneelTurns <= kneelRate) {
+				if (msg)
+					KinkyDungeonSendTextMessage(4, TextGet("KDGetUpWall"), KDBaseWhite,1, !(KDGameData.KneelTurns <= delta*data.kneelRate));
+			//}
+		}
+
+		if (msg) {
+			if (data.minKneel > 0) {
+				KinkyDungeonSendActionMessage(1, TextGet("KDKneelCannot"), KDBaseOrange,1, true);
+			} else if (data.kneelRate < 1) {
+				KinkyDungeonSendTextMessage(4, TextGet("KDKneelSlow"), KDBaseWhite,1, true);
+			}
+		}
+
+	}
+
+	KinkyDungeonSendEvent("afterKneelRate", data);
+
+	return data;
 }

@@ -131,10 +131,13 @@ let LAYERS_BASE = [
 	"NecklaceCharm",
 	"Necklace",
 
+	"ForeLooseStraps",
+
 
 	"WrapChest",
 	"HarnessOver",
 	"BindChest",
+	"NeckCorsetOver",
 	"BustierCollar",
 	"BustierChest",
 	"ShirtCollar",
@@ -198,6 +201,8 @@ let LAYERS_BASE = [
 	"LegbinderLegsOver2",
 	"Greaves",
 
+	"OverGarters",
+
 	"WrappingTorsoMid", // For stuff that goes over a shirt and clothes but under restraints, e.g. tape
 
 	"StrapsUnderbust",
@@ -250,7 +255,14 @@ let LAYERS_BASE = [
 	"LegbinderLegsOver",
 	"PetsuitLegs",
 
+	"Garters",
+
 	"WrappingTorsoUnder",// For skintight stuff
+
+
+	"LooseStraps",
+
+	"PetsuitLegsUnder",
 
 	// Left Leg
 	"KneeAccLeft",
@@ -416,6 +428,7 @@ let LAYERS_BASE = [
 	"Butt",
 	"TorsoLower",
 	"Torso",
+	"BehindTorso",
 
 	// Feet behind the body
 	"AnkleLeftHogtie",
@@ -450,6 +463,7 @@ let LAYERS_BASE = [
 	"ArmRight",
 
 	// Chain links for leg cuffs
+	"BindChainLinksUnderThigh",
 	"BindChainLinksUnder",
 
 	// Clothes that go behind
@@ -457,20 +471,19 @@ let LAYERS_BASE = [
 	"BeltFarBack",
 	"Coat",
 
+	"Tail",
+	"Wings",
+	"Cape",
 	// Hair and hat back
 	"HairBack",
 	"HairPonytail",
 	"HatBack",
 
-	"Tail",
-	"Wings",
-	"Cape",
 
 	"FurnitureBackLinked",
 	"FurnitureBack",
 	"BG",
 ];
-
 
 interface metaLayerBound {
 	id: string,
@@ -538,6 +551,20 @@ let LayerGroups = {
 		"SleeveDecoRight",
 		"BeltBack",
 		"ShoeLeft",
+	]),
+	NeckCorsetOverStraps: ToMap([
+		"BustierCollar",
+		"BustierChest",
+		"ShirtCollar",
+		"ShirtChest",
+		"Option_BindChestLower",
+		"NeckCorset",
+		"SuitChestOver",
+		"BraChest",
+		"BindChestLower",
+		"SuitChest",
+		"CatsuitChest",
+		"Chest",
 	]),
 	BustierPoses: ToMap([
 		"Bustier",
@@ -692,6 +719,7 @@ let LayerGroups = {
 		"WrappingLegsUnder",
 		"WrappingLegsRight",
 		"PetsuitLegs",
+		"PetsuitLegsUnder",
 	]),
 	"SlimeThighs": ToMap([
 		"AnklesOver",
@@ -712,6 +740,7 @@ let LayerGroups = {
 		"LegbinderLegsOver",
 		"LegbinderAnklesOver",
 		"PetsuitLegs",
+		"PetsuitLegsUnder",
 	]),
 	"Boots": ToMap([
 		"AnklesOver",
@@ -1657,6 +1686,7 @@ let LayerGroups = {
 	"OverCrotchStrapMid",
 
 	"NeckCorset",
+	"NeckCorsetOver",
 	// Hair mid
 	"Mask",
 	"BlindfoldWrap",
@@ -1757,6 +1787,7 @@ let LayerGroups = {
 	"WrappingLegsOver",
 	"LegbinderLegsOver",
 	"PetsuitLegs",
+	"PetsuitLegsUnder",
 	"WrappingAnklesOver",
 	"LegbinderAnklesOver",
 
@@ -2061,6 +2092,12 @@ let Hardpoints: Record<string, Hardpoint> = {
 		Y: 690,
 		Angle: 0,
 	},
+	HeadpatHead: {
+        Parent: "Head",
+        X: 1220,
+        Y: 360,
+        Angle: 0,
+    },
 	Rear: {
 		Parent: "Torso",
 		X: 1127,

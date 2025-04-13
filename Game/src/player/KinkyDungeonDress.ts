@@ -178,7 +178,6 @@ function KinkyDungeonDressPlayer (
 	let CurrentDress = Character == KinkyDungeonPlayer ? KinkyDungeonCurrentDress
 		: (Character == KDPreviewModel ? KinkyDungeonCurrentDress : (KDCharacterDress.get(Character) || "Bandit"));
 	let DressList = noDressOutfit ? [] : KDGetDressList()[CurrentDress];
-
 	if (!noDressOutfit && !forceUseOutfit && KDNPCStyle.get(Character)?.customOutfit) {
 		DressList = [];
 		for (let a of JSON.parse(DecompressB64(KDNPCStyle.get(Character)?.customOutfit))) {
@@ -186,11 +185,12 @@ function KinkyDungeonDressPlayer (
 				DressList.push({
 					Item: a.Model.Name || a.Model,
 					Group: a.Model.Group || a.Model.Name || a.Model,
-					Color: "#ffffff",
+					Color: KDBaseWhite,
 					Lost: false,
 					Filters: a.Model.Filters || a.Filters,
 					Properties: a.Model.Properties || a.Properties,
 				},);
+
 			}
 		}
 	}
@@ -199,6 +199,8 @@ function KinkyDungeonDressPlayer (
 
 		if (!KDGameData.NPCRestraints) KDGameData.NPCRestraints = {};
 		let data = {
+			hideShrines: {},
+			drawnRestraints: [],
 			updateRestraints: false,
 			updateDress: false,
 			updateExpression: false,
@@ -214,7 +216,26 @@ function KinkyDungeonDressPlayer (
 				: undefined,
 		};
 
+
+		if (DressList) {
+			for (let clothes of DressList) {
+				if (clothes.Properties && !clothes.Lost) {
+					for (let p of Object.values(clothes.Properties)) {
+						if (p.HideRestraintsTags) {
+							for (let t of p.HideRestraintsTags) {
+								data.hideShrines[t] = true;
+							}
+						}
+					}
+				}
+			}
+
+		}
+
+
 		if (KinkyDungeonCheckClothesLoss) KDRefreshCharacter.set(Character, true);
+
+		let drawnRestraints: item[] = data.drawnRestraints;
 
 		// if true, nakeds the player, then reclothes
 		if (KDRefreshCharacter.get(Character)) {
@@ -242,17 +263,18 @@ function KinkyDungeonDressPlayer (
 						//Character.Appearance.splice(A, 1);
 						//A -= 1;
 						newAppearance[model.Group || model.Name] = Character.Appearance[A];
-					}
-				} else {
-					// BC support
-					let asset = Character.Appearance[A].Asset;
-					if (!asset.Group.Name.startsWith("Item") && !clothGroups[asset.Group.Name]) {
-						//Character.Appearance.splice(A, 1);
-						//A -= 1;
-						newAppearance[asset.Group.Name] = Character.Appearance[A];
+
+						if (model.Properties) {
+							for (let p of Object.values(model.Properties)) {
+								if (p.HideRestraintsTags) {
+									for (let t of p.HideRestraintsTags) {
+										data.hideShrines[t] = true;
+									}
+								}
+							}
+						}
 					}
 				}
-
 			}
 
 			Character.Appearance = Object.values(newAppearance);
@@ -261,25 +283,37 @@ function KinkyDungeonDressPlayer (
 
 			let tags = Character == KinkyDungeonPlayer ? customPlayerTags || KinkyDungeonPlayerTags : new Map();
 
+
+
 			// Next we revisit all the player's restraints
 			if (!NoRestraints) {
 				if (Character == KinkyDungeonPlayer || customInventory) {
 					for (let inv of (customInventory || KinkyDungeonAllRestraint())) {
 						// Skip invalid restraints!!!
 						let renderTypes = KDRestraint(inv).shrine;
+						let cont = false;
 						if (!(!KDRestraint(inv) || (KDRestraint(inv).armor && !KDToggles.DrawArmor))) {
 							if (!KDRestraint(inv).hideTags || KDRestraint(inv).hideTags.some((tag) => {return tags.get(tag) == true;})) {
 								let Poses = KDCurrentModels.get(Character)?.Poses;
-								if (!KDRestraint(inv)?.noRenderPose?.some((s) => {
-									return !!Poses[s];
-								})) {
-									KDApplyItem(Character, inv, customPlayerTags || KinkyDungeonPlayerTags, customFaction);
-									if (KDRestraint(inv).Model) {
-
-										restraintModels[KDRestraint(inv).Model] = true;
-										restraintModels["Fashion" + KDRestraint(inv).Model] = true;
+								if (KDRestraint(inv)?.shrine) {
+									for (let s of KDRestraint(inv)?.shrine) {
+										if (data.hideShrines[s]) cont = true;
 									}
 								}
+								if (!cont) {
+									if (!Poses || !KDRestraint(inv)?.noRenderPose?.some((s) => {
+										return !!Poses[s];
+									})) {
+										drawnRestraints.push(inv);
+										KDApplyItem(Character, inv, customPlayerTags || KinkyDungeonPlayerTags, customFaction);
+										if (KDRestraint(inv).Model) {
+
+											restraintModels[KDRestraint(inv).Model] = true;
+											restraintModels["Fashion" + KDRestraint(inv).Model] = true;
+										}
+									}
+								}
+
 							}
 							restraints.push(inv);
 						} else renderTypes = [];
@@ -287,21 +321,36 @@ function KinkyDungeonDressPlayer (
 							let accessible = KDRestraint(inv)?.accessible || KDRestraint(inv)?.UnderlinkedAlwaysRender;
 							let link = inv.dynamicLink;
 							for (let I = 0; I < 30; I++) {
-								if (accessible || KDRestraint(link).alwaysRender || (KDRestraint(link).renderWhenLinked && KDRestraint(link).renderWhenLinked.some((element) => {return renderTypes.includes(element);}))) {
-									if (!KDRestraint(inv).hideTags || KDRestraint(inv).hideTags.some((tag) => {return tags.get(tag) == true;})) {
-										let Poses = KDCurrentModels.get(Character)?.Poses;
-										if (!KDRestraint(inv)?.noRenderPose?.some((s) => {
-											return !!Poses[s];
-										})) {
-											KDApplyItem(Character, link, customPlayerTags || KinkyDungeonPlayerTags, customFaction);
+								cont = false;
 
-											if (KDRestraint(link).Model) {
-												restraintModels[KDRestraint(link).Model] = true;
-												restraintModels["Fashion" + KDRestraint(link).Model] = true;
+
+								if (!(!KDRestraint(link) || (KDRestraint(link).armor && !KDToggles.DrawArmor))) {
+									if (accessible || KDRestraint(link).alwaysRender || (KDRestraint(link).renderWhenLinked && KDRestraint(link).renderWhenLinked.some((element) => {return renderTypes.includes(element);}))) {
+										if (!KDRestraint(inv).hideTags || KDRestraint(inv).hideTags.some((tag) => {return tags.get(tag) == true;})) {
+
+											if (KDRestraint(inv)?.shrine) {
+												for (let s of KDRestraint(inv)?.shrine) {
+													if (data.hideShrines[s]) cont = true;
+												}
+											}
+											if (!cont) {
+
+												let Poses = KDCurrentModels.get(Character)?.Poses;
+												if (!Poses || !KDRestraint(inv)?.noRenderPose?.some((s) => {
+													return !!Poses[s];
+												})) {
+													drawnRestraints.push(inv);
+													KDApplyItem(Character, link, customPlayerTags || KinkyDungeonPlayerTags, customFaction);
+
+													if (KDRestraint(link).Model) {
+														restraintModels[KDRestraint(link).Model] = true;
+														restraintModels["Fashion" + KDRestraint(link).Model] = true;
+													}
+												}
 											}
 										}
+										restraints.push(link);
 									}
-									restraints.push(link);
 								}
 								if (link.dynamicLink) {
 									renderTypes = KDRestraint(link).shrine;
@@ -319,9 +368,10 @@ function KinkyDungeonDressPlayer (
 
 						if (!KDRestraint(inv).hideTags || KDRestraint(inv).hideTags.some((tag) => {return tags.get(tag) == true;})) {
 							let Poses = KDCurrentModels.get(Character)?.Poses;
-							if (!KDRestraint(inv)?.noRenderPose?.some((s) => {
+							if (!Poses || !KDRestraint(inv)?.noRenderPose?.some((s) => {
 								return !!Poses[s];
 							})) {
+								drawnRestraints.push(inv);
 								KDApplyItem(Character, inv, NPCTags.get(Character) || new Map(), customFaction);
 								if (KDRestraint(inv).Model) {
 
@@ -361,6 +411,7 @@ function KinkyDungeonDressPlayer (
 			for (let clothes of DressList) {
 				if (!clothes) continue;
 				if (StandalonePatched && !clothes.Lost && KDRefreshCharacter.get(Character)) {
+					if (clothes.Properties && Object.values(clothes.Properties).some((p) => {return p.NoLoss;})) continue;
 					if (clothes.Item && (restraintModels[clothes.Item] || restraintModels[clothes.Item + "Restraint"])) {
 						clothes.Lost = true;
 					} else if (IsModelLost(Character, clothes.Item))
@@ -396,14 +447,11 @@ function KinkyDungeonDressPlayer (
 						if (KinkyDungeonFlags.get("stripShoes")) clothes.Lost = true;
 					}
 					if (!NoRestraints) {
-						if (Character == KinkyDungeonPlayer) {
-							for (let entry of KinkyDungeonAllRestraintDynamic()) {
-								let inv = entry.item;
-								if (KDRestraint(inv)?.remove && (!KDRestraint(inv).armor || KDToggles.DrawArmor)) {
-									for (let remove of KDRestraint(inv).remove) {
-										if (remove == clothes.Group) clothes.Lost = true;
-										if (StandalonePatched && ModelDefs[clothes.Item]?.Categories?.includes(remove)) clothes.Lost = true;
-									}
+						for (let inv of drawnRestraints) {
+							if (KDRestraint(inv)?.remove && (!KDRestraint(inv).armor || KDToggles.DrawArmor)) {
+								for (let remove of KDRestraint(inv).remove) {
+									if (remove == clothes.Group) clothes.Lost = true;
+									if (StandalonePatched && ModelDefs[clothes.Item]?.Categories?.includes(remove)) clothes.Lost = true;
 								}
 							}
 						}
@@ -763,7 +811,7 @@ function KinkyDungeonWearForcedClothes(C: Character, restraints?: item[], extraF
 				if (dress.Group && C == KinkyDungeonPlayer && KDProtectedCosplay.includes(dress.Group)){return;}
 				let filters =  dress.Filters ? JSON.parse(JSON.stringify(dress.Filters)) : {};
 				let Properties =  dress.Properties ? JSON.parse(JSON.stringify(dress.Properties)) : {};
-				let faction = inv.forceFaction || inv.faction || dress.faction;
+				let faction = inv.forceFaction != undefined ? inv.forceFaction : (inv.faction || dress.faction);
 				if (faction) {
 					if (dress.factionFilters && faction && KDGetFactionFilters(faction)) {
 						for (let f of Object.entries(dress.factionFilters)) {
@@ -861,7 +909,7 @@ function KDApplyItem(C: Character, inv: item, tags: any, customFaction: string =
 	if (StandalonePatched) {
 		let restraint = KDRestraint(inv);
 		let AssetGroup = restraint.AssetGroup ? restraint.AssetGroup : restraint.Group;
-		let faction = customFaction ? customFaction : ((inv.forceFaction) ? inv.forceFaction : (inv.faction ? inv.faction : ""));
+		let faction = customFaction ? customFaction : ((inv.forceFaction != undefined) ? inv.forceFaction : (inv.faction ? inv.faction : ""));
 
 		// faction color system
 		let filters =  (restraint.Filters || (ModelDefs[restraint.Model || restraint.Asset])?.Filters) ?
@@ -1044,4 +1092,48 @@ function KDGetFactionFilters(faction: string): Record<string, LayerFilter> {
 	if (KDFactionProperties[faction]?.jailAlliedFaction && KinkyDungeonFactionFilters[KDFactionProperties[faction]?.jailAlliedFaction])
 		return KinkyDungeonFactionFilters[KDFactionProperties[faction]?.jailAlliedFaction];
 	return undefined;
+}
+
+/**
+ *
+ */
+function KinkyDungeonHeadpatModal() {
+    const id = "kinky-dungeon-headpat-modal";
+    if (document.querySelector(`#${id}`)) {
+        let el = document.getElementById(id);
+        el.parentNode.removeChild(el);
+    }
+    const backdrop = document.createElement("div");
+    backdrop.id = id;
+	let windowoffsets = KDGetWindowCanvasOffset();
+    let pxassign = {
+        position: "absolute",
+        width: `${windowoffsets.canvaswidth * 0.08}px`,
+        height: `${windowoffsets.canvasheight * 0.05}px`,
+		top: "0px",
+		left: "0px",
+		transform: "none",
+        //backgroundColor: "#ffffff"
+    }
+    let hardpointlocs = GetHardpointLoc(KinkyDungeonPlayer, 0, 0, 1, "HeadpatHead", KDToggles.FlipPlayer)
+    pxassign.top = `${(windowoffsets.y + (hardpointlocs.y * windowoffsets.heightscale) - ((windowoffsets.canvasheight * 0.05) / 2))}px`;
+    pxassign.left = `${(windowoffsets.x + (hardpointlocs.x * windowoffsets.widthscale) - ((windowoffsets.canvaswidth * 0.08) / 2))}px`;
+    pxassign.transform = `rotate(${hardpointlocs.angle}rad)`
+    Object.assign(backdrop.style, pxassign);
+    backdrop.addEventListener("click", () => {
+        console.log("Headpats!")
+        if ((KinkyDungeonState == 'Game') && (KinkyDungeonDrawState == 'Game')) {
+            KinkyDungeonSetFlag("clickheadpatted_recently", 5);
+            if (!KDMapData.clickHeadpatted) {
+                KDMapData.clickHeadpatted = true;
+                KDChangeWill("","","",0.5)
+                KinkyDungeonSendTextMessage(4, TextGet("KDClickedHeadpat"), "#ffffff", 4)
+            }
+            else {
+                KinkyDungeonSendTextMessage(4, TextGet("KDClickedHeadpatNoWill"), "#ffffff", 4)
+            }
+            KinkyDungeonAdvanceTime(1, true, true)
+        }
+    });
+    document.body.appendChild(backdrop);
 }

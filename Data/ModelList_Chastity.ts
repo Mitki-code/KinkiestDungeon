@@ -91,6 +91,10 @@ AddModel({
 			Invariant: true,
 			InheritColor: "Lining",
 		},
+		{ Name: "BraProtoLiningMidRim", Layer: "StrapsUnderbust", Pri: -14-99.9,
+			Invariant: true,
+			InheritColor: "Hem",
+		},
 		{ Name: "BraProtoCups", Layer: "BindChestLower", Pri: 14-100,
 			Invariant: true,
 			TieToLayer: "BraProto",
@@ -792,7 +796,7 @@ AddModel({
 	TopLevel: true,
 	Restraint: true,
 	Categories: ["Restraints", "ChastityBelt", "Metal"],
-	AddPose: ["ChastityBelt"],
+	AddPose: ["ChastityBelt", "NeoBelt", "NeoChastityBelt"],
 	AddPoseIf: {
 		ChastityOption2: ["CrotchStrap"],
 	},
@@ -812,12 +816,14 @@ AddModel({
 			Invariant: true,
 			DisplacementInvariant: true,
 			InheritColor: "Lock",
+			TieToLayer: "Belt",
 		},
 		{ Name: "BeltPadlockPin", Layer: "ChastityBelt", Pri: -39.8,
 			PrependLayerPrefix: {ChastityOption2: "Option2_", ChastityOption: "Option_"},
 			Invariant: true,
 			DisplacementInvariant: true,
 			InheritColor: "LockPin",
+			TieToLayer: "Belt",
 		},
 	])
 });
@@ -828,7 +834,7 @@ AddModel({
 	TopLevel: false,
 	Restraint: true,
 	Categories: ["Restraints", "ChastityBelt", "Metal"],
-	AddPose: ["ChastityBelt"],
+	AddPose: ["ChastityBelt", "NeoBelt", "NeoChastityBelt"],
 	AddPoseIf: {
 		ChastityOption2: ["CrotchStrap"],
 	},
@@ -848,6 +854,7 @@ AddModel({
 			Invariant: true,
 			DisplacementInvariant: true,
 			InheritColor: "Lock",
+			TieToLayer: "Belt",
 		},
 	])
 });
@@ -858,7 +865,7 @@ AddModel({
 	TopLevel: false,
 	Restraint: true,
 	Categories: ["Restraints", "ChastityBelt", "Metal"],
-	AddPose: ["ChastityBelt"],
+	AddPose: ["ChastityBelt", "NeoBelt", "NeoChastityBelt"],
 	AddPoseIf: {
 		ChastityOption2: ["CrotchStrap"],
 	},
@@ -878,6 +885,7 @@ AddModel({
 			Invariant: true,
 			DisplacementInvariant: true,
 			InheritColor: "Lock",
+			TieToLayer: "Belt",
 		},
 	])
 });
@@ -907,12 +915,14 @@ AddModel({
 			Invariant: true,
 			DisplacementInvariant: true,
 			InheritColor: "Lock",
+			TieToLayer: "Bra",
 		},
 		{ Name: "BraPadlockPin", Layer: "BindChestLower", Pri: -29.8,
 			PrependLayerPrefix: {ChastityBraOption: "Option_"},
 			Invariant: true,
 			DisplacementInvariant: true,
 			InheritColor: "LockPin",
+			TieToLayer: "Bra",
 		},
 	])
 });
@@ -935,6 +945,7 @@ AddModel({
 			Invariant: true,
 			DisplacementInvariant: true,
 			InheritColor: "Lock",
+			TieToLayer: "Bra",
 		},
 	])
 });
@@ -957,6 +968,7 @@ AddModel({
 			Invariant: true,
 			DisplacementInvariant: true,
 			InheritColor: "Lock",
+			TieToLayer: "Bra",
 		},
 	])
 });

@@ -36,6 +36,51 @@ let KDDelayedActionUpdate: Record<string, (action: KDDelayedAction) => void> = {
  * This is processed for delayed actions
  */
 let KDDelayedActionCommit: Record<string, (action: KDDelayedAction) => void> = {
+
+
+
+	"ConsumableEffect": (action) => {
+		let item = KinkyDungeonGetInventoryItem(action.data.Name);
+		let consumable = KDConsumable(item.item);
+		if (action.data.itemEffect) {
+			// Use new itemEffect API
+			let effect = KDItemEffects[action.data.itemEffect];
+			let entity = action.data.id ? KinkyDungeonFindID(action.data.id) || KDLookupID(action.data.id) : undefined;
+			let result = effect.onUse(item.item, action.data.Quantity, KDPlayer(),
+				entity,
+				action.data.tX, action.data.tY);
+			if (result.miscast) {
+				effect.onMiscast(result, item.item, action.data.Quantity, KDPlayer(),
+					action.data.id ? KinkyDungeonFindID(action.data.id) || KDLookupID(action.data.id) : undefined,
+					action.data.tX, action.data.tY);
+				return;
+			} else if (!result.success) {
+				effect.onFailure(result, item.item, action.data.Quantity, KDPlayer(),
+					action.data.id ? KinkyDungeonFindID(action.data.id) || KDLookupID(action.data.id) : undefined,
+					action.data.tX, action.data.tY);
+				return;
+			}
+
+			if (result.consumed > 0) {
+				KDChangeConsumable("entity_" + entity?.id,
+					"item", "cast", consumable,
+					-(KinkyDungeonTargetingSpellItem.useQuantity != undefined ? KinkyDungeonTargetingSpellItem.useQuantity : 1));
+
+			}
+			if (result.success) {
+				if (!action.data.noAggro)
+					KinkyDungeonAggroAction('item', {});
+			}
+
+			if (result.time) {
+				if (result.time == 1) {
+					KinkyDungeonAdvanceTime(1);
+				} else {
+					KDStunTurns(result.time, true);
+				}
+			}
+		}
+	},
 	"Consumable": (action) => {
 		if (KinkyDungeonGetInventoryItem(action.data.Name))
 			KinkyDungeonUseConsumable(action.data.Name, action.data.Quantity);
@@ -46,6 +91,10 @@ let KDDelayedActionCommit: Record<string, (action: KDDelayedAction) => void> = {
 	},
 	"EquipRestraint": (action) => {
 		KDDoEquipDelayed(action.data,
+			action.data.player ? KDGetGlobalEntity(action.data.player) : KDPlayer())
+	},
+	"EquipGenericRestraint": (action) => {
+		KDDoEquipGenericDelayed(action.data,
 			action.data.player ? KDGetGlobalEntity(action.data.player) : KDPlayer())
 	},
 	"Struggle": (action) => {
@@ -60,12 +109,15 @@ let KDDelayedActionCommit: Record<string, (action: KDDelayedAction) => void> = {
 		let restraint = dynamic.restraint;
 		let host = dynamic.host;
 		if (restraint) {
+			KDChangeStamina(action.data.escapeData.struggleGroup, action.data.escapeData.struggleType,
+				"struggle", 0, true, 1);
+
 			KinkyDungeonSetFlag(action.data.escapeData.struggleType, 1);
 			KinkyDungeonSetFlag("escaping", 2);
 			let lockType = restraint.lock && KDLocks[restraint.lock] ? KDLocks[restraint.lock] : null;
 			let struggleType = action.data.escapeData.struggleType;
 			if (struggleType == "Struggle" || struggleType == "Remove" || struggleType == "Cut") {
-				if (struggleType == "Cut" || (struggleType == "Struggle" && KDRestraint(restraint)?.struggleBreak))
+				if (struggleType == "Cut")
 					restraint.cutProgress += action.data.amount;
 				else restraint.struggleProgress += action.data.amount;
 				let progress = (restraint.struggleProgress || 0) + (restraint.cutProgress || 0);
@@ -82,7 +134,7 @@ let KDDelayedActionCommit: Record<string, (action: KDDelayedAction) => void> = {
 				if (restraint.unlockProgress > 1) {
 					KinkyDungeonSetFlag("escaped", 2);
 					KinkyDungeonRemoveKeysUnlock(restraint.lock);
-					KinkyDungeonLock(restraint, "");
+					KinkyDungeonLock(restraint, "", false, false, false, true);
 				} else if (action.data?.delta > 0) {
 					//KDStunTurns(action.data?.delta, true);
 				}
@@ -91,7 +143,7 @@ let KDDelayedActionCommit: Record<string, (action: KDDelayedAction) => void> = {
 				restraint.pickProgress += action.data.amount;
 				if (restraint.pickProgress > 1) {
 					KinkyDungeonSetFlag("escaped", 2);
-					KinkyDungeonLock(restraint, "");
+					KinkyDungeonLock(restraint, "", false, false, true);
 				} else if (action.data?.delta > 0) {
 					//KDStunTurns(action.data?.delta, true);
 				}
